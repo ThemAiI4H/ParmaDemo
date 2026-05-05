@@ -1,0 +1,41 @@
+{
+  "name": "medicai-rag-demo",
+  "version": "1.0.0",
+  "description": "Demo Chatbot AI con RAG per servizi sanitari Italia/Parma usando OpenAI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "ingest": "node server.js ingest",
+    "test": "node server.js test"
+  },
+  "dependencies": {
+    "@lancedb/lancedb": "^0.27.2",
+    "@mozilla/readability": "^0.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "http-proxy-middleware": "^3.0.5",
+    "jsdom": "^29.0.2",
+    "natural": "^8.1.1",
+    "openai": "^4.52.7",
+    "p-queue": "^9.1.2",
+    "puppeteer": "^22.15.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "rag",
+    "chatbot",
+    "openai",
+    "burocrazia",
+    "comune",
+    "sanità"
+  ]
+}

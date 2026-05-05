@@ -1,0 +1,12 @@
+node_modules/
+package-lock.json
+data/raw/
+data/crawl-cache.json
+ParmaDemo.zip
+demo.txt
+.env
+*.log
+.DS_Store
+.nyc_output
+coverage/
+
