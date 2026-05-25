@@ -1183,7 +1183,7 @@ async function doSend() {
             <svg viewBox="0 0 24 24" style="width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>
             🔊
           </button>
-          <button class="copy-btn" onclick="doCopy(this,'${esc(cleanText)}')">
+          <button class="copy-btn" data-copy-text="${encodeURIComponent(cleanText)}" type="button">
             <svg viewBox="0 0 24 24" style="width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
             copia
           </button>
@@ -1220,7 +1220,7 @@ let recognition=null,isListening=false;
 function toggleVoiceInput(){if(!('webkitSpeechRecognition'in window)&&!('SpeechRecognition'in window)){alert('Riconoscimento vocale non supportato');return;}const btn=document.getElementById('voice-btn');if(isListening){recognition.stop();return;}recognition=new(window.SpeechRecognition||window.webkitSpeechRecognition)();recognition.continuous=true;recognition.interimResults=true;recognition.lang='it-IT';recognition.onstart=()=>{isListening=true;btn.style.background='#ff4444';};recognition.onresult=(e)=>{let final='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;}if(final)document.getElementById('text-in').value=final;};recognition.onerror=()=>{isListening=false;btn.style.background='';};recognition.onend=()=>{isListening=false;btn.style.background='';};recognition.start();}
 function triggerUpload(){document.getElementById('upload-input').click();}
 document.getElementById('upload-input').addEventListener('change',async(e)=>{const file=e.target.files[0];if(!file)return;try{const text=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsText(file);});document.getElementById('text-in').value=text.slice(0,2000);}catch(err){alert('Errore lettura file: '+err.message);}});
-document.addEventListener('DOMContentLoaded',()=>{const box=document.getElementById('msg-box');if(box){box.addEventListener('scroll',checkScrollBtn);box.addEventListener('DOMNodeInserted',()=>{setTimeout(()=>{const ttsBtn=box.querySelector('.tts-btn:not([data-listener-attached])');if(ttsBtn){ttsBtn.setAttribute('data-listener-attached','true');ttsBtn.addEventListener('click',(e)=>{e.preventDefault();const text=decodeURIComponent(ttsBtn.dataset.ttsText||'');if(text)speakText(text,ttsBtn);});}},100)});}});
+document.addEventListener('DOMContentLoaded',()=>{const box=document.getElementById('msg-box');if(box){box.addEventListener('scroll',checkScrollBtn);box.addEventListener('DOMNodeInserted',()=>{setTimeout(()=>{const ttsBtn=box.querySelector('.tts-btn:not([data-listener-attached])');if(ttsBtn){ttsBtn.setAttribute('data-listener-attached','true');ttsBtn.addEventListener('click',(e)=>{e.preventDefault();const text=decodeURIComponent(ttsBtn.dataset.ttsText||'');if(text)speakText(text,ttsBtn);});}const copyBtn=box.querySelector('.copy-btn:not([data-listener-attached])');if(copyBtn){copyBtn.setAttribute('data-listener-attached','true');copyBtn.addEventListener('click',(e)=>{e.preventDefault();const text=decodeURIComponent(copyBtn.dataset.copyText||'');if(text)doCopy(copyBtn,text);});}},100)});}});
 document.getElementById('text-in').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend();}});
 function doCopy(btn,text){navigator.clipboard?.writeText(text).catch(()=>{});btn.classList.add('done');btn.innerHTML=`<svg viewBox="0 0 24 24" style="width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg> ok`;setTimeout(()=>{btn.classList.remove('done');btn.innerHTML=`<svg viewBox="0 0 24 24" style="width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> copia`;},2000);}
 function chipClick(btn,text){const ripple=document.createElement('span');ripple.className='chip-ripple';btn.style.position='relative';btn.style.overflow='hidden';btn.appendChild(ripple);setTimeout(()=>ripple.remove(),500);document.getElementById('text-in').value=text;doSend();}
@@ -1236,6 +1236,8 @@ async function speakText(text, btnElement) {
   const avatar = document.getElementById('main-av');
   if (avatar) avatar.classList.add('speaking');
 
+  console.log('🔊 TTS: starting with text:', text.substring(0, 50) + '...');
+
   try {
     const csrf = getCookie('csrf_token');
     const resp = await fetch('/api/tts', {
@@ -1247,12 +1249,15 @@ async function speakText(text, btnElement) {
       body: JSON.stringify({ text })
     });
 
+    console.log('🔊 TTS: fetch response status:', resp.status);
+
     if (!resp.ok) {
       const errText = await resp.text().catch(() => '');
       throw new Error('TTS failed: HTTP ' + resp.status + ' ' + errText);
     }
 
     const contentType = resp.headers.get('content-type') || '';
+    console.log('🔊 TTS: content-type:', contentType);
 
     if (contentType.includes('application/json')) {
       const data = await resp.json().catch(() => ({}));
@@ -1260,20 +1265,39 @@ async function speakText(text, btnElement) {
     }
 
     const blob = await resp.blob();
+    console.log('🔊 TTS: received blob, size:', blob.size);
+    
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
-    audio.onended = () => URL.revokeObjectURL(url);
-    audio.onerror = () => URL.revokeObjectURL(url);
+    
+    audio.onended = () => {
+      console.log('🔊 TTS: audio ended');
+      URL.revokeObjectURL(url);
+    };
+    audio.onerror = (err) => {
+      console.error('🔊 TTS: audio error:', err);
+      URL.revokeObjectURL(url);
+    };
 
-    await audio.play();
+    console.log('🔊 TTS: playing audio...');
+    await audio.play().catch(e => console.error('🔊 TTS: play error:', e));
 
     await new Promise((resolve) => {
-      audio.onended = resolve;
-      audio.onerror = resolve;
+      audio.onended = () => {
+        console.log('🔊 TTS: audio playback complete');
+        resolve();
+      };
+      audio.onerror = () => {
+        console.error('🔊 TTS: audio error during playback');
+        resolve();
+      };
     });
+  } catch (error) {
+    console.error('🔊 TTS: error:', error.message);
   } finally {
     if (avatar) avatar.classList.remove('speaking');
     if (btn) btn.disabled = false;
+    console.log('🔊 TTS: cleanup done');
   }
 }
 
