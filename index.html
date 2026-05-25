@@ -1408,29 +1408,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const box = document.getElementById('msg-box');
   if (box) {
     box.addEventListener('scroll', checkScrollBtn);
-    box.addEventListener('DOMNodeInserted', () => {
-      setTimeout(checkScrollBtn, 100);
-      
-      // Attach click listeners to newly inserted TTS buttons
-      const ttsBtn = box.querySelector('.tts-btn:not([data-listener-attached])');
-      if (ttsBtn) {
-        ttsBtn.setAttribute('data-listener-attached', 'true');
-        ttsBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          const text = decodeURIComponent(ttsBtn.dataset.ttsText || '');
-          if (text) speakText(text, ttsBtn);
-        });
+    
+    // Event delegation: intercept clicks su TTS e COPY button
+    box.addEventListener('click', (e) => {
+      // TTS button click
+      if (e.target.closest('.tts-btn')) {
+        e.preventDefault();
+        const btn = e.target.closest('.tts-btn');
+        const text = decodeURIComponent(btn.dataset.ttsText || '');
+        if (text) {
+          console.log('🔊 TTS clicked, text:', text.substring(0, 50));
+          speakText(text, btn);
+        }
       }
       
-      // Attach click listeners to newly inserted COPY buttons
-      const copyBtn = box.querySelector('.copy-btn:not([data-listener-attached])');
-      if (copyBtn) {
-        copyBtn.setAttribute('data-listener-attached', 'true');
-        copyBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          const text = decodeURIComponent(copyBtn.dataset.copyText || '');
-          if (text) doCopy(copyBtn, text);
-        });
+      // COPY button click
+      if (e.target.closest('.copy-btn')) {
+        e.preventDefault();
+        const btn = e.target.closest('.copy-btn');
+        const text = decodeURIComponent(btn.dataset.copyText || '');
+        if (text) {
+          console.log('📋 COPY clicked');
+          doCopy(btn, text);
+        }
       }
     });
   }

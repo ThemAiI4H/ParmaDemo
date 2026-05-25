@@ -484,8 +484,8 @@ app.post(
       // The exact response format can vary by OpenAI SDK versions; we handle blob-like outputs.
       // Commonly this returns audio as a stream/Uint8Array.
       const ttsResp = await openai.audio.speech.create({
-        model: 'gpt-4o-mini-tts',
-        voice: 'marin',
+        model: 'tts-1',
+        voice: 'nova',
         input: clean,
         format: 'mp3'
       }, { signal: controller.signal });
