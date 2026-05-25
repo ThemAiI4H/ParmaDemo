@@ -1048,7 +1048,7 @@ footer { background: var(--c-text); color: rgba(255,255,255,0.88); }
         <button class="dot dot-y"></button>
         <button class="dot dot-g"></button>
       </div>
-      <button onclick="toggleLiveAvatar()" id="avatar-btn" style="margin-left:12px;padding:6px 14px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border:none;border-radius:8px;color:white;font-family:var(--f-mono);font-size:.7rem;font-weight:500;cursor:pointer;box-shadow:0 0 20px rgba(124,58,237,.6);animation:avatar-btn-pulse 1.2s ease-in-out infinite">👤 AVATAR</button>
+      <button onclick="(window.toggleLiveAvatar && window.toggleLiveAvatar())" id="avatar-btn" style="margin-left:12px;padding:6px 14px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border:none;border-radius:8px;color:white;font-family:var(--f-mono);font-size:.7rem;font-weight:500;cursor:pointer;box-shadow:0 0 20px rgba(124,58,237,.6);animation:avatar-btn-pulse 1.2s ease-in-out infinite">👤 AVATAR</button>
     </div>
 
     <div class="messages" id="msg-box">
@@ -1140,6 +1140,7 @@ function closeChat() {
 }
 
 async function doSend() {
+
   const inp = document.getElementById('text-in');
   const text = inp.value.trim();
   if (!text) return;
@@ -1210,8 +1211,55 @@ function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'<').
 function esc(s){return escapeHtml(s);}
 function now(){return new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
 
-const synth=window.speechSynthesis;let currentUtterance=null;
-function speakText(text,lang='it-IT'){if(synth.speaking){synth.cancel();const av=document.getElementById('main-av');if(av)av.classList.remove('speaking');return;}currentUtterance=new SpeechSynthesisUtterance(text);currentUtterance.lang=lang;currentUtterance.rate=0.95;currentUtterance.pitch=1.0;currentUtterance.volume=1.0;const avatar=document.getElementById('main-av');if(avatar){currentUtterance.onstart=()=>avatar.classList.add('speaking');currentUtterance.onend=()=>avatar.classList.remove('speaking');}synth.speak(currentUtterance);}
+// ── TTS (OpenAI) ──
+async function speakText(text) {
+  const btn = document.querySelector('.tts-btn');
+  if (btn) btn.disabled = true;
+
+  const avatar = document.getElementById('main-av');
+  if (avatar) avatar.classList.add('speaking');
+
+  try {
+    const csrf = getCookie('csrf_token');
+    const resp = await fetch('/api/tts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-csrf-token': csrf || ''
+      },
+      body: JSON.stringify({ text })
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text().catch(() => '');
+      throw new Error('TTS failed: HTTP ' + resp.status + ' ' + errText);
+    }
+
+    const contentType = resp.headers.get('content-type') || '';
+
+    if (contentType.includes('application/json')) {
+      const data = await resp.json().catch(() => ({}));
+      throw new Error('TTS error: ' + (data && data.error ? data.error : 'unknown'));
+    }
+
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.onended = () => URL.revokeObjectURL(url);
+    audio.onerror = () => URL.revokeObjectURL(url);
+
+    await audio.play();
+
+    await new Promise((resolve) => {
+      audio.onended = resolve;
+      audio.onerror = resolve;
+    });
+  } finally {
+    if (avatar) avatar.classList.remove('speaking');
+    if (btn) btn.disabled = false;
+  }
+}
+
 
 (function resizeWidget(){const w=document.getElementById('chat-window');const drag=(e,sx,sy,mw,mh)=>{w.style.width=Math.max(320,mw+(e.clientX-sx))+'px';w.style.height=Math.max(380,mh+(e.clientY-sy))+'px';};document.querySelectorAll('.resize-handle').forEach(el=>{el.addEventListener('mousedown',e=>{e.preventDefault();e.stopPropagation();const sx=e.clientX,sy=e.clientY,mw=w.offsetWidth,mh=w.offsetHeight;const m=e=>drag(e,sx,sy,mw,mh);const u=()=>{document.removeEventListener('mousemove',m);document.removeEventListener('mouseup',u);};document.addEventListener('mousemove',m);document.addEventListener('mouseup',u);});});})();
 
@@ -1227,6 +1275,7 @@ function triggerShatterEffect(){const canvas=document.getElementById('particle-c
 </script>
 
 <script src="js/liveavatar-env.js"></script>
+<script src="liveavatar-widget.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
   setTimeout(() => {
@@ -1236,6 +1285,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }, 300);
 });
 </script>
+
 
 </body>
 </html>

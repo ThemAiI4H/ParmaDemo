@@ -654,6 +654,8 @@ footer {
 }
 .copy-btn svg { width:9px; height:9px; fill:none; stroke:currentColor; stroke-width:2; }
 .bubble-wrap:hover .copy-btn { opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+/* Make sure TTS mirrors copy button visibility on hover */
+.bubble-wrap:hover .tts-btn { opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
 .copy-btn.done { background:rgba(52,211,153,0.12); border-color:rgba(52,211,153,0.4); color:var(--iris-5); opacity:1!important; transform:translateY(0) scale(1)!important; }
 
 /* TTS BUTTON */
@@ -1143,6 +1145,7 @@ function getCookie(name) {
 
 async function doSend() {
   const inp = document.getElementById('text-in');
+
   const text = inp.value.trim();
   if (!text) return;
 
@@ -1717,36 +1720,60 @@ function triggerShatterEffect() {
   }, 4100);
 }
 
-// ── TTS (Text-to-Speech) ──
-const synth = window.speechSynthesis;
-let currentUtterance = null;
+// ── TTS (OpenAI) ──
+async function speakText(text) {
+  // Solo OpenAI TTS: nessun fallback SpeechSynthesis.
+  // Endpoint: /api/tts (da implementare lato server).
+  const btn = document.querySelector('.tts-btn');
+  if (btn) btn.disabled = true;
 
-function speakText(text, lang = 'it-IT') {
-  if (synth.speaking) {
-    synth.cancel();
-    const av = document.getElementById('main-av');
-    if (av) av.classList.remove('speaking');
-    return;
-  }
-  
-  currentUtterance = new SpeechSynthesisUtterance(text);
-  currentUtterance.lang = lang;
-  currentUtterance.rate = 0.95;
-  currentUtterance.pitch = 1.0;
-  currentUtterance.volume = 1.0;
-  
   const avatar = document.getElementById('main-av');
-  if (avatar) {
-    currentUtterance.onstart = () => {
-      avatar.classList.add('speaking');
-    };
-    currentUtterance.onend = () => {
-      avatar.classList.remove('speaking');
-    };
+  if (avatar) avatar.classList.add('speaking');
+
+  try {
+    const csrf = getCookie('csrf_token');
+    const resp = await fetch('/api/tts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-csrf-token': csrf || ''
+      },
+      body: JSON.stringify({ text })
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text().catch(() => '');
+      throw new Error('TTS failed: HTTP ' + resp.status + ' ' + errText);
+    }
+
+    const contentType = resp.headers.get('content-type') || '';
+
+    // Se il server risponde JSON (errore) -> throw
+    if (contentType.includes('application/json')) {
+      const data = await resp.json().catch(() => ({}));
+      throw new Error('TTS error: ' + (data && data.error ? data.error : 'unknown'));
+    }
+
+    // Altrimenti ricevi audio (mp3/wav/pcm) come Blob e riproduci
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+
+    audio.onended = () => URL.revokeObjectURL(url);
+    audio.onerror = () => URL.revokeObjectURL(url);
+
+    await audio.play();
+
+    await new Promise((resolve) => {
+      audio.onended = resolve;
+      audio.onerror = resolve;
+    });
+  } finally {
+    if (avatar) avatar.classList.remove('speaking');
+    if (btn) btn.disabled = false;
   }
-  
-  synth.speak(currentUtterance);
 }
+
 
 // ✅ FUNZIONE RESIZE ORIGINALE DA preview_volcanic.html
 (function resizeWidget() {

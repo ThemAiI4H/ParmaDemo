@@ -459,6 +459,59 @@ app.post(
   }
 );
 
+// ═══════════════════════════════════════════════════════════════
+// TTS endpoint (OpenAI -> audio blob)
+// ═══════════════════════════════════════════════════════════════
+app.post(
+  '/api/tts',
+  rateLimit({ windowMs: 60_000, max: 15 }),
+  validateJsonBody({ required: ['text'], maxMessageLen: 6000 }),
+  async (req, res) => {
+    try {
+      const { text } = req.body;
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ error: 'text required' });
+      }
+
+      // Optional: basic normalization
+      const clean = text.trim();
+      if (!clean) return res.status(400).json({ error: 'text empty' });
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45_000);
+
+      // NOTE: We use OpenAI text-to-speech.
+      // The exact response format can vary by OpenAI SDK versions; we handle blob-like outputs.
+      // Commonly this returns audio as a stream/Uint8Array.
+      const ttsResp = await openai.audio.speech.create({
+        model: 'gpt-4o-mini-tts',
+        voice: 'marin',
+        input: clean,
+        format: 'mp3'
+      }, { signal: controller.signal });
+
+      clearTimeout(timeoutId);
+
+      // ttsResp is typically a Response-like object.
+      // Convert to buffer and stream with correct content-type.
+      const arrayBuffer = await ttsResp.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      res.set({
+        'Content-Type': 'audio/mpeg',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma': 'no-cache'
+      });
+
+      return res.status(200).send(buffer);
+    } catch (error) {
+      console.error('TTS error:', error);
+      return res.status(500).json({ error: 'TTS error: ' + (error && error.message ? error.message : 'unknown') });
+    }
+  }
+);
+
+
 
 
 app.post('/api/ingest', async (req, res) => {
