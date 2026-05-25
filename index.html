@@ -884,7 +884,16 @@ footer {
 <header class="header-main">
   <div class="container" style="display:flex; align-items:center; justify-content:space-between; padding:0;">
     <img src="https://www.clinicacittadiparma.it/wp-content/uploads/logo-clinica-citta-di-parma-def.png" alt="Casa di Cura Città di Parma" class="logo">
-    <a href="https://prenotazione.clinicacdp.it/" class="btn">🗓️ Prenota Visita</a>
+
+    <div style="display:flex; gap:0.8rem; align-items:center;">
+      <button
+        class="btn"
+        style="background: linear-gradient(135deg, #7c3aed, #2563eb);"
+        onclick="location.href='comune_parma.html'"
+        title="Passa alla pagina comunale simulata"
+      >⇄ Vai alla pagina comunale</button>
+      <a href="https://prenotazione.clinicacdp.it/" class="btn">🗓️ Prenota Visita</a>
+    </div>
   </div>
 </header>
 
@@ -1134,8 +1143,12 @@ async function doSend() {
   // User message
   const row = document.createElement('div');
   row.className = 'msg msg--user';
-  row.innerHTML = `<div><div class="bubble bubble--user-anim"><p>${esc(text)}</p><div class="ts">${now()}</div></div></div>`;
+  const inner = document.createElement('div');
+  inner.innerHTML = `<div><div class="bubble bubble--user-anim"><div class="user-text"></div><div class="ts">${now()}</div></div></div>`;
+  inner.querySelector('.user-text').textContent = text;
+  row.appendChild(inner);
   box.appendChild(row);
+
   const ubub = row.querySelector('.bubble--user-anim');
   ubub.style.opacity = '0';
   ubub.style.transform = 'translateX(30px) scale(0.2) rotate(8deg)';
@@ -1161,21 +1174,26 @@ async function doSend() {
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
   try {
+    const csrf = getCookie('csrf_token');
     const response = await fetch('/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-csrf-token': csrf || ''
+      },
       body: JSON.stringify({ message: text }),
       signal: controller.signal
     });
+
     
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const data = await response.json();
     const rawReply = data.reply || 'Risposta dalla base di conoscenza non disponibile.';
     const cleanText = rawReply.replace(/<[^>]+>/g, '').replace(/\*\*/g, '').trim();
-    const htmlContent = linkifyHtml(markdownToHtml(rawReply));
-    
+    // htmlContent removed (XSS mitigation: prefer text-only rendering)
     clearTimeout(timeoutId);
+
     tr.style.display = 'none';
     tav.classList.remove('typing');
     
@@ -1188,7 +1206,8 @@ async function doSend() {
       </div>
       <div>
         <div class="bubble-wrap">
-          <button class="tts-btn" onclick="speakText('${esc(cleanText)}')">
+          <button class="tts-btn" onclick="speakText('${escapeHtml(cleanText)}')">
+
             <svg viewBox="0 0 24 24" style="width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>
             🔊
           </button>
@@ -1197,6 +1216,7 @@ async function doSend() {
             copia
           </button>
           <div class="bubble bubble--anim" id="response-${Date.now()}"><p></p><div class="ts">${now()}</div></div>
+
         </div>
       </div>`;
     
@@ -1224,8 +1244,10 @@ async function doSend() {
         // On complete: convert to rich HTML
         if (i === words.length - 1) {
           setTimeout(() => {
-            p.innerHTML = htmlContent;
+            // Prefer text-only rendering to prevent XSS (payloads from model/RAG are untrusted)
+            p.textContent = rawReply;
             box.scrollTop = box.scrollHeight;
+
           }, 400); // Brief pause after typing
         }
       }, i * 35);
@@ -1246,10 +1268,30 @@ async function doSend() {
     const errorMsg = 'Mi dispiace, c\'è stato un problema tecnico. Riprova o chiama 0521 249611.';
     const aiRow = document.createElement('div');
     aiRow.className = 'msg msg--ai';
-    aiRow.innerHTML = `<div class="mini-av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 015 5v3a5 5 0 01-10 0V7a5 5 0 015-5z"/><path d="M19 21a7 7 0 00-14 0"/></svg></div><div><div class="bubble-wrap"><div class="bubble"><p>${errorMsg}</p></div></div></div>`;
+    const mini = document.createElement('div');
+    mini.className = 'mini-av';
+    mini.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 015 5v3a5 5 0 01-10 0V7a5 5 0 015-5z"/><path d="M19 21a7 7 0 00-14 0"/></svg>`;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    const p = document.createElement('p');
+    p.textContent = errorMsg;
+    bubble.appendChild(p);
+
+    const bubbleWrap = document.createElement('div');
+    bubbleWrap.className = 'bubble-wrap';
+    bubbleWrap.appendChild(bubble);
+
+    const right = document.createElement('div');
+    right.appendChild(bubbleWrap);
+
+    aiRow.appendChild(mini);
+    aiRow.appendChild(document.createElement('div'));
+    aiRow.lastChild.appendChild(bubbleWrap);
     box.appendChild(aiRow);
     box.scrollTop = box.scrollHeight;
     console.error('Chat API error:', error);
+
   }
 }
 
@@ -1384,7 +1426,19 @@ function chipClick(btn, text) {
   doSend();
 }
 
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"'); }
+// Escape into text nodes (not for HTML injection)
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '<')
+    .replace(/>/g, '>')
+    .replace(/"/g, '"')
+    .replace(/'/g, '&#39;');
+}
+
+// Backward-compatible alias (avoid using for HTML injection)
+function esc(s) { return escapeHtml(s); }
+
 function now() { return new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
 
 function markdownToHtml(text) {
@@ -1702,73 +1756,11 @@ function speakText(text, lang = 'it-IT') {
     });
   });
 })();
-// ✅ LIVE AVATAR FIX: usa avatarId direttamente
-let liveAvatarActive = false;
-function toggleLiveAvatar() {
-  if (liveAvatarActive) {
-    const av = document.querySelector('.avatar-frame-ext');
-    if(av) {
-      av.style.animation = 'chat-close 0.28s ease-in both';
-      setTimeout(() => { av.remove(); }, 300);
-    }
-    liveAvatarActive = false;
-    document.getElementById('avatar-btn').textContent = '👤 AVATAR';
-    return;
-  }
-
-  // 1. Crea sessione server-side
-  const sessionId = 'liveavatar_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-  const iframeUrl = '/api/liveavatar?sessionId=' + encodeURIComponent(sessionId);
-
-  const frame = document.createElement('div');
-  frame.className = 'avatar-frame-ext';
-  frame.style.cssText = `
-    position:fixed; bottom:90px; right:calc(1.5rem + 465px);
-    width:360px; height:480px; z-index:98;
-    border-radius:22px; overflow:hidden;
-    background:#100e17;
-    box-shadow:0 24px 72px rgba(0,0,0,0.75),0 0 60px -20px rgba(192,132,252,0.4),0 0 0 1px rgba(192,132,252,0.15);
-    transform-origin:bottom right;
-    animation:chat-open 0.48s cubic-bezier(0.34,1.56,0.64,1) both;
-    display:flex; flex-direction:column;
-  `;
-
-  frame.innerHTML = `
-    <div style="background:linear-gradient(180deg,#252230,#1a1723);padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(192,132,252,0.15)">
-      <div style="width:8px;height:8px;border-radius:50%;background:#34d399;box-shadow:0 0 8px rgba(52,211,153,0.7);animation:pip-pulse 3s ease-in-out infinite"></div>
-      <span style="color:#efefef;font-size:0.82rem;font-family:system-ui">LiveAvatar</span>
-      <button onclick="toggleLiveAvatar()" style="margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:1rem;line-height:1">✕</button>
-    </div>
-    <iframe id="la-iframe" src="${iframeUrl}"
-      style="flex:1;width:100%;border:none;background:#100e17;"
-      allow="camera; microphone; autoplay; encrypted-media; display-capture"
-      allowfullscreen
-      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-storage-access-by-user-activation">
-    </iframe>
-    <div id="la-fallback" style="display:none;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:24px;text-align:center">
-      <div style="font-size:2.5rem">🎭</div>
-      <p style="color:#a0a0b0;font-size:0.82rem;font-family:system-ui;line-height:1.5">Avatar non disponibile in anteprima.<br>Funziona con API Key configurata sul server.</p>
-      <code style="background:#15131c;color:#c084fc;font-size:0.7rem;padding:6px 12px;border-radius:8px;display:block">LIVEAVATAR_API_KEY</code>
-    </div>
-  `;
-
-  document.body.appendChild(frame);
-  liveAvatarActive = true;
-  document.getElementById('avatar-btn').textContent = '✕ CHIUDI';
-
-  // Show fallback if iframe fails to load within 5s
-  const iframe = frame.querySelector('#la-iframe');
-  const fallback = frame.querySelector('#la-fallback');
-  const fallbackTimer = setTimeout(() => {
-    iframe.style.display = 'none';
-    fallback.style.display = 'flex';
-  }, 5000);
-  iframe.addEventListener('load', () => clearTimeout(fallbackTimer));
-}
 </script>
 
-<style>
-.avatar-frame {
+<!-- LiveAvatar widget (session-safe + sandbox-hardened) -->
+<script src="liveavatar-widget.js"></script>
+
   position: absolute;
   inset:0;
   z-index: 999;

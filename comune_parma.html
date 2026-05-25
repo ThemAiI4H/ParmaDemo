@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comune di Parma — Sito Istituzionale</title>
+<style>
+/* ─── RESET & BASE ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --c-primary:   #06c;          /* AGID blu istituzionale */
+  --c-primary-d: #004080;
+  --c-secondary: #e8f0fa;
+  --c-text:      #17324d;
+  --c-muted:     #5b6f82;
+  --c-border:    #d9e0e9;
+  --c-bg:        #f5f6fa;
+  --c-white:     #ffffff;
+  --c-warning:   #bf7000;
+  --c-danger:    #cc3333;
+  --c-green:     #1a7a4a;
+  --radius:      4px;
+  --shadow-sm:   0 2px 6px rgba(0,0,0,0.08);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.10);
+  --font: "Titillium Web", "Lato", system-ui, -apple-system, sans-serif;
+}
+body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); font-size: 16px; line-height: 1.6; }
+
+a { color: var(--c-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+/* ─── TOP SLIM BAR (AGID) ────────────────────────────────────── */
+.it-header-slim-wrapper {
+  background: var(--c-primary-d);
+  color: #fff;
+  font-size: 0.82rem;
+}
+.it-header-slim-wrapper .container {
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 36px; gap: 1rem;
+}
+.slim-left { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.slim-left a { color: rgba(255,255,255,0.85); font-size: 0.82rem; }
+.slim-left a:hover { color: #fff; text-decoration: underline; }
+.slim-sep { color: rgba(255,255,255,0.35); }
+.slim-right { display: flex; gap: 1rem; align-items: center; flex-shrink: 0; }
+.slim-right a { color: rgba(255,255,255,0.85); font-size: 0.82rem; display: flex; align-items: center; gap: 0.3rem; }
+.slim-right a:hover { color: #fff; text-decoration: underline; }
+
+/* ─── MAIN HEADER ─────────────────────────────────────────────── */
+.it-header-center-wrapper {
+  background: var(--c-primary);
+  color: #fff;
+}
+.it-header-center-wrapper .container {
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 80px; gap: 1.5rem;
+}
+.brand-logo {
+  display: flex; align-items: center; gap: 1rem; text-decoration: none; color: #fff;
+  flex-shrink: 0;
+}
+.brand-logo:hover { text-decoration: none; }
+.logo-circle {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 1.15rem; flex-shrink: 0;
+  letter-spacing: -1px;
+}
+.brand-text { line-height: 1.2; }
+.brand-text strong { display: block; font-size: 1.2rem; font-weight: 700; }
+.brand-text span { font-size: 0.82rem; opacity: 0.82; }
+
+.header-actions { display: flex; align-items: center; gap: 0.75rem; }
+.search-wrapper { position: relative; }
+.search-wrapper input {
+  width: 260px; padding: 0.5rem 2.5rem 0.5rem 0.85rem;
+  border: 1px solid rgba(255,255,255,0.35); border-radius: var(--radius);
+  background: rgba(255,255,255,0.12); color: #fff;
+  font-size: 0.9rem; outline: none;
+}
+.search-wrapper input::placeholder { color: rgba(255,255,255,0.65); }
+.search-wrapper input:focus { border-color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.2); }
+.search-wrapper .search-icon {
+  position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%);
+  color: rgba(255,255,255,0.7); pointer-events: none;
+}
+.btn-header {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4);
+  color: #fff; padding: 0.45rem 1rem; border-radius: var(--radius);
+  font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: background 0.15s;
+}
+.btn-header:hover { background: rgba(255,255,255,0.25); }
+
+/* ─── NAVIGATION ──────────────────────────────────────────────── */
+.it-nav-wrapper {
+  background: var(--c-white);
+  border-bottom: 2px solid var(--c-primary);
+  box-shadow: var(--shadow-sm);
+  position: sticky; top: 0; z-index: 80;
+}
+.it-nav-wrapper .container {
+  display: flex; align-items: stretch;
+}
+.main-nav { display: flex; list-style: none; gap: 0; flex-wrap: wrap; }
+.main-nav > li { position: relative; }
+.main-nav > li > a {
+  display: flex; align-items: center; gap: 0.35rem;
+  padding: 0.9rem 1.1rem; font-size: 0.9rem; font-weight: 600;
+  color: var(--c-text); text-decoration: none; white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.main-nav > li > a:hover,
+.main-nav > li > a.active { color: var(--c-primary); border-bottom-color: var(--c-primary); }
+.main-nav > li:hover .dropdown { display: block; }
+.dropdown {
+  display: none; position: absolute; top: 100%; left: 0; z-index: 200;
+  background: var(--c-white); border: 1px solid var(--c-border);
+  border-radius: 0 0 var(--radius) var(--radius);
+  box-shadow: var(--shadow-md); min-width: 220px;
+}
+.dropdown a {
+  display: block; padding: 0.65rem 1.1rem;
+  font-size: 0.87rem; color: var(--c-text); border-bottom: 1px solid var(--c-border);
+}
+.dropdown a:last-child { border-bottom: none; }
+.dropdown a:hover { background: var(--c-secondary); color: var(--c-primary); text-decoration: none; }
+
+/* ─── ALERT BANNER ────────────────────────────────────────────── */
+.alert-banner {
+  background: #fff3cd; border-bottom: 2px solid #f0c040;
+  padding: 0.6rem 0;
+}
+.alert-banner .container {
+  display: flex; align-items: center; gap: 0.75rem; font-size: 0.88rem;
+}
+.alert-icon { font-size: 1rem; flex-shrink: 0; }
+.alert-banner strong { color: var(--c-warning); }
+
+/* ─── BREADCRUMB ──────────────────────────────────────────────── */
+.breadcrumb-wrap { background: var(--c-white); border-bottom: 1px solid var(--c-border); padding: 0.55rem 0; }
+.breadcrumb { display: flex; align-items: center; gap: 0.4rem; list-style: none; font-size: 0.83rem; }
+.breadcrumb li + li::before { content: "/"; color: var(--c-muted); margin-right: 0.4rem; }
+.breadcrumb li a { color: var(--c-primary); }
+.breadcrumb li.current { color: var(--c-muted); }
+
+/* ─── HERO ────────────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, var(--c-primary) 0%, #004a99 60%, #003370 100%);
+  color: #fff; padding: 3rem 0 2.5rem;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.hero .container { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 360px; gap: 2.5rem; align-items: center; }
+@media (max-width: 900px) { .hero .container { grid-template-columns: 1fr; } .hero-side { display: none; } }
+.hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.75rem; line-height: 1.2; }
+.hero p { font-size: 1.05rem; opacity: 0.9; margin-bottom: 1.5rem; max-width: 560px; }
+.hero-btns { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.btn-hero-primary {
+  background: #fff; color: var(--c-primary); padding: 0.7rem 1.5rem;
+  border-radius: var(--radius); font-weight: 700; font-size: 0.95rem;
+  text-decoration: none; transition: background 0.15s, color 0.15s;
+}
+.btn-hero-primary:hover { background: #e8f0fa; text-decoration: none; }
+.btn-hero-outline {
+  background: transparent; color: #fff; padding: 0.7rem 1.5rem;
+  border: 2px solid rgba(255,255,255,0.6); border-radius: var(--radius);
+  font-weight: 600; font-size: 0.95rem; text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.btn-hero-outline:hover { border-color: #fff; background: rgba(255,255,255,0.1); text-decoration: none; }
+.hero-side { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); border-radius: var(--radius); padding: 1.25rem; }
+.hero-side h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.85; }
+.news-mini { list-style: none; }
+.news-mini li { border-bottom: 1px solid rgba(255,255,255,0.15); padding: 0.6rem 0; font-size: 0.87rem; }
+.news-mini li:last-child { border-bottom: none; }
+.news-mini a { color: #fff; opacity: 0.9; }
+.news-mini a:hover { opacity: 1; text-decoration: underline; }
+.news-mini .date { display: block; font-size: 0.75rem; opacity: 0.65; margin-top: 0.15rem; }
+
+/* ─── SERVIZI RAPIDI ──────────────────────────────────────────── */
+.servizi-rapidi { background: var(--c-white); padding: 2rem 0; border-bottom: 1px solid var(--c-border); }
+.servizi-rapidi h2 { font-size: 1.1rem; font-weight: 700; color: var(--c-primary); margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.servizi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; }
+@media (max-width: 900px) { .servizi-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .servizi-grid { grid-template-columns: repeat(2, 1fr); } }
+.servizio-card {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: 1rem 0.5rem; border: 1px solid var(--c-border); border-radius: var(--radius);
+  background: var(--c-bg); text-decoration: none; color: var(--c-text);
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  cursor: pointer;
+}
+.servizio-card:hover {
+  border-color: var(--c-primary); box-shadow: var(--shadow-md);
+  transform: translateY(-2px); text-decoration: none; color: var(--c-primary);
+}
+.servizio-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: var(--c-secondary); display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; margin-bottom: 0.6rem;
+}
+.servizio-card span { font-size: 0.82rem; font-weight: 600; line-height: 1.3; }
+
+/* ─── MAIN CONTENT GRID ───────────────────────────────────────── */
+.main-content { padding: 2.5rem 0; }
+.main-content .container { display: grid; grid-template-columns: 1fr 320px; gap: 2rem; }
+@media (max-width: 900px) { .main-content .container { grid-template-columns: 1fr; } }
+
+/* ─── NEWS & EVENTI ───────────────────────────────────────────── */
+.section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.25rem; }
+.section-header h2 { font-size: 1.25rem; font-weight: 700; color: var(--c-text); }
+.section-header a { font-size: 0.88rem; color: var(--c-primary); }
+
+.news-card {
+  background: var(--c-white); border: 1px solid var(--c-border); border-radius: var(--radius);
+  margin-bottom: 1rem; overflow: hidden; display: flex;
+  box-shadow: var(--shadow-sm); transition: box-shadow 0.15s;
+}
+.news-card:hover { box-shadow: var(--shadow-md); }
+.news-card-stripe { width: 5px; flex-shrink: 0; background: var(--c-primary); }
+.news-card-stripe.green  { background: var(--c-green); }
+.news-card-stripe.orange { background: #e06c00; }
+.news-card-body { padding: 1rem 1.1rem; flex: 1; }
+.news-cat {
+  display: inline-block; font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em; padding: 0.15rem 0.5rem;
+  border-radius: 2px; background: var(--c-secondary); color: var(--c-primary);
+  margin-bottom: 0.4rem;
+}
+.news-cat.green  { background: #d4f0e0; color: var(--c-green); }
+.news-cat.orange { background: #fce8d6; color: #a04800; }
+.news-card h3 { font-size: 0.97rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--c-text); }
+.news-card h3 a { color: inherit; }
+.news-card h3 a:hover { color: var(--c-primary); text-decoration: none; }
+.news-card p { font-size: 0.85rem; color: var(--c-muted); margin-bottom: 0.5rem; line-height: 1.5; }
+.news-meta { display: flex; gap: 1rem; font-size: 0.78rem; color: var(--c-muted); }
+
+/* ─── AGENDA EVENTI ───────────────────────────────────────────── */
+.eventi-list { list-style: none; }
+.evento-item {
+  display: flex; gap: 0.85rem; align-items: flex-start;
+  padding: 0.85rem 0; border-bottom: 1px solid var(--c-border);
+}
+.evento-item:last-child { border-bottom: none; }
+.evento-data {
+  flex-shrink: 0; width: 48px; text-align: center;
+  background: var(--c-primary); color: #fff; border-radius: var(--radius);
+  padding: 0.35rem 0.25rem; line-height: 1;
+}
+.evento-data .day { font-size: 1.3rem; font-weight: 800; display: block; }
+.evento-data .month { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; display: block; }
+.evento-info h4 { font-size: 0.9rem; font-weight: 700; color: var(--c-text); margin-bottom: 0.2rem; }
+.evento-info p { font-size: 0.8rem; color: var(--c-muted); }
+
+/* ─── SIDEBAR ──────────────────────────────────────────────────── */
+.sidebar-widget {
+  background: var(--c-white); border: 1px solid var(--c-border);
+  border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+.sidebar-widget h3 {
+  font-size: 0.88rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--c-primary); margin-bottom: 1rem;
+  padding-bottom: 0.6rem; border-bottom: 2px solid var(--c-secondary);
+}
+.contact-item { display: flex; gap: 0.65rem; align-items: flex-start; margin-bottom: 0.75rem; font-size: 0.87rem; }
+.contact-icon { width: 32px; height: 32px; background: var(--c-secondary); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
+.contact-item strong { display: block; font-weight: 700; color: var(--c-text); font-size: 0.82rem; }
+.contact-item span, .contact-item a { color: var(--c-muted); font-size: 0.85rem; }
+
+.orari-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.orari-table td { padding: 0.4rem 0.3rem; border-bottom: 1px solid var(--c-border); color: var(--c-muted); }
+.orari-table td:first-child { font-weight: 600; color: var(--c-text); width: 50%; }
+.orari-table tr:last-child td { border-bottom: none; }
+
+.link-utili-list { list-style: none; }
+.link-utili-list li { border-bottom: 1px solid var(--c-border); }
+.link-utili-list li:last-child { border-bottom: none; }
+.link-utili-list a {
+  display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0;
+  font-size: 0.87rem; color: var(--c-text);
+}
+.link-utili-list a:hover { color: var(--c-primary); text-decoration: none; }
+.link-utili-list .arrow { margin-left: auto; color: var(--c-primary); font-size: 0.9rem; }
+
+/* ─── SEZIONE TEMATICA ────────────────────────────────────────── */
+.sezione-tematiche { background: var(--c-secondary); padding: 2.5rem 0; }
+.sezione-tematiche h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.3rem; }
+.sezione-tematiche .subtitle { color: var(--c-muted); font-size: 0.95rem; margin-bottom: 1.75rem; }
+.tematiche-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+@media (max-width: 900px) { .tematiche-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .tematiche-grid { grid-template-columns: 1fr; } }
+.tematica-card {
+  background: var(--c-white); border: 1px solid var(--c-border);
+  border-radius: var(--radius); padding: 1.25rem; text-decoration: none;
+  color: var(--c-text); display: flex; flex-direction: column; gap: 0.5rem;
+  transition: box-shadow 0.15s, transform 0.15s; box-shadow: var(--shadow-sm);
+}
+.tematica-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); text-decoration: none; }
+.tematica-card .t-icon { font-size: 1.6rem; margin-bottom: 0.15rem; }
+.tematica-card h3 { font-size: 0.97rem; font-weight: 700; color: var(--c-primary); }
+.tematica-card p { font-size: 0.83rem; color: var(--c-muted); line-height: 1.5; }
+.tematica-card .t-link { font-size: 0.82rem; color: var(--c-primary); font-weight: 600; margin-top: auto; }
+
+/* ─── BANNER SPID ─────────────────────────────────────────────── */
+.banner-spid {
+  background: #003d7a; color: #fff; padding: 2rem 0;
+}
+.banner-spid .container {
+  display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center;
+}
+@media (max-width: 700px) { .banner-spid .container { grid-template-columns: 1fr; } }
+.banner-spid h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; }
+.banner-spid p { opacity: 0.85; font-size: 0.9rem; }
+.btn-spid {
+  background: #fff; color: #003d7a; padding: 0.75rem 2rem;
+  border-radius: var(--radius); font-weight: 700; font-size: 0.95rem;
+  white-space: nowrap; text-decoration: none; flex-shrink: 0;
+}
+.btn-spid:hover { background: #e8f0fa; text-decoration: none; }
+
+/* ─── FOOTER ──────────────────────────────────────────────────── */
+footer { background: var(--c-text); color: rgba(255,255,255,0.88); }
+.footer-top { padding: 2.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.12); }
+.footer-top .container { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 2rem; }
+@media (max-width: 900px) { .footer-top .container { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .footer-top .container { grid-template-columns: 1fr; } }
+.footer-col h4 { font-size: 0.88rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; margin-bottom: 1rem; }
+.footer-col p { font-size: 0.85rem; color: rgba(255,255,255,0.7); line-height: 1.6; margin-bottom: 0.5rem; }
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 0.45rem; }
+.footer-col ul a { font-size: 0.85rem; color: rgba(255,255,255,0.72); }
+.footer-col ul a:hover { color: #fff; text-decoration: underline; }
+.footer-brand { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.footer-brand .fl { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.85rem; }
+.footer-brand strong { display: block; color: #fff; font-size: 1rem; }
+.footer-brand span { font-size: 0.78rem; opacity: 0.72; }
+.footer-bottom { padding: 1.1rem 0; }
+.footer-bottom .container { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.footer-bottom p { font-size: 0.8rem; color: rgba(255,255,255,0.55); }
+.footer-links { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+.footer-links a { font-size: 0.8rem; color: rgba(255,255,255,0.55); }
+.footer-links a:hover { color: rgba(255,255,255,0.85); }
+.pn-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 3px; padding: 0.2rem 0.6rem; font-size: 0.78rem; color: rgba(255,255,255,0.65); margin-top: 0.85rem; }
+
+/* ─── CHATBOT CSS (invariato) ──────────────────────────────────── */
+:root {
+  --iris-1:#6e7cff; --iris-2:#84aefc; --iris-3:#818cf8; --iris-4:#38bdf8; --iris-5:#34d3c6; --iris-7:#3ca5fb;
+}
+@keyframes halo-rotate { to { transform:rotate(360deg); } }
+.orb { position:fixed; bottom:1.5rem; right:1.5rem; width:66px; height:66px; cursor:pointer; z-index:100; }
+.orb::before {
+  content:''; position:absolute; inset:-24px; border-radius:50%;
+  background:conic-gradient(from 0deg,var(--iris-1),var(--iris-2),var(--iris-4),var(--iris-5),var(--iris-7),var(--iris-1));
+  filter:blur(20px); opacity:0.55;
+  animation:halo-rotate 8s linear infinite,orb-breathe 4.5s ease-in-out infinite; z-index:-1;
+}
+@keyframes orb-breathe { 0%,100%{opacity:.45} 50%{opacity:.75;transform:scale(1.12)} }
+.orb-core {
+  width:66px; height:66px; border-radius:50%;
+  background: radial-gradient(circle at 32% 26%,rgba(255,255,255,.2) 0%,transparent 50%), radial-gradient(circle at 70% 76%,rgba(0,0,0,.45) 0%,transparent 48%), conic-gradient(from 180deg,var(--iris-2),var(--iris-4),var(--iris-5),var(--iris-1),var(--iris-2));
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow: inset 0 3px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(0,0,0,.3), 0 12px 36px rgba(0,0,0,.65), 0 0 28px -6px rgba(192,132,252,.6);
+  display:flex; align-items:center; justify-content:center;
+  animation:orb-float 5.5s ease-in-out infinite; position:relative; overflow:hidden;
+}
+.orb-core::before {
+  content:''; position:absolute; top:9%; left:14%; width:44%; height:30%;
+  border-radius:50%; background:radial-gradient(ellipse at 40% 38%,rgba(255,255,255,.75) 0%,rgba(255,255,255,.15) 55%,transparent 100%);
+  filter:blur(1.5px); transform:rotate(-25deg);
+}
+.orb-core svg{width:38%;height:38%;fill:none;stroke:rgba(255,255,255,.9);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;position:relative;z-index:1;filter:drop-shadow(0 0 8px rgba(255,255,255,.7))}
+@keyframes orb-float { 0%,100%{transform:translateY(0) rotate(0deg)} 33%{transform:translateY(-7px) rotate(1.2deg)} 66%{transform:translateY(-3px) rotate(-.9deg)} }
+.orb:hover .orb-core{animation-play-state:paused;transform:scale(1.08) translateY(-5px)}
+:root { --vol-1:#100e17;--vol-2:#15131c;--vol-3:#1a1723;--vol-4:#1f1c28;--vol-5:#252230;--t-hi:#efefef;--t-med:#a0a0b0;--t-ghost:#606075;--t-dim:#48485a;--r-msg:18px;--f-disp:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell;--f-body:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell;--f-mono:ui-monospace,'JetBrains Mono',Menlo,Monaco,monospace; }
+.widget-wrap{position:fixed;width:450px;max-width:94vw;height:620px;max-height:75vh;min-height:520px;display:flex;flex-direction:column;border-radius:24px;overflow:hidden;box-shadow:0 24px 72px rgba(0,0,0,.75),0 8px 28px rgba(0,0,0,.55),0 0 60px -20px rgba(192,132,252,.4),0 0 100px -40px rgba(56,189,248,.3);border:1px solid rgba(255,255,255,.08);z-index:99}
+.widget-wrap>.shell{overflow:hidden;border-radius:24px}
+.widget-wrap .resize-handle{position:absolute;opacity:0;z-index:1000}
+.widget-wrap .rh-tl{top:0;left:0;width:24px;height:24px;cursor:nw-resize}
+.widget-wrap .rh-tr{top:0;right:0;width:24px;height:24px;cursor:ne-resize}
+.widget-wrap .rh-bl{bottom:0;left:0;width:24px;height:24px;cursor:sw-resize}
+.widget-wrap .rh-br{bottom:0;right:0;width:24px;height:24px;cursor:se-resize}
+.widget-wrap .rh-t{top:0;left:24px;right:24px;height:16px;cursor:n-resize}
+.widget-wrap .rh-b{bottom:0;left:24px;right:24px;height:16px;cursor:s-resize}
+.widget-wrap .rh-l{left:0;top:24px;bottom:24px;width:16px;cursor:w-resize}
+.widget-wrap .rh-r{right:0;top:24px;bottom:24px;width:16px;cursor:e-resize}
+.shell{display:flex;flex-direction:column;height:100%;background:var(--vol-2)}
+.header{padding:.85rem 1rem;display:flex;align-items:center;gap:.7rem;background:radial-gradient(ellipse 100% 70% at 50% 0%,rgba(192,132,252,.06) 0%,transparent 70%),linear-gradient(180deg,var(--vol-5) 0%,var(--vol-4) 100%);border-bottom:1px solid rgba(0,0,0,.4);box-shadow:0 4px 16px rgba(0,0,0,.35);position:relative;z-index:10}
+.av-wrap{position:relative}
+.av-orbit{position:absolute;inset:-7px;border-radius:50%;border:1.5px solid transparent;border-top-color:rgba(192,132,252,.6);border-left-color:rgba(56,189,248,.35);animation:av-orbit-spin 6s linear infinite}
+@keyframes av-orbit-spin{to{transform:rotate(360deg)}}
+.av-core{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;background:radial-gradient(circle at 32% 26%,rgba(255,255,255,.18) 0%,transparent 46%),radial-gradient(circle at 70% 74%,rgba(0,0,0,.4) 0%,transparent 46%),linear-gradient(145deg,var(--vol-5),var(--vol-3));border:1px solid rgba(255,255,255,.1);box-shadow:inset 0 2px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.55),3px 5px 14px rgba(0,0,0,.55),-1px -2px 6px rgba(255,255,255,.03),0 0 20px -6px rgba(192,132,252,.4);animation:av-breath 5s ease-in-out infinite}
+@keyframes av-breath{0%,100%{box-shadow:inset 0 2px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.55),3px 5px 14px rgba(0,0,0,.55),-1px -2px 6px rgba(255,255,255,.03),0 0 20px -6px rgba(192,132,252,.35)}50%{box-shadow:inset 0 2px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.55),3px 5px 14px rgba(0,0,0,.55),-1px -2px 6px rgba(255,255,255,.03),0 0 28px -4px rgba(192,132,252,.6),0 0 40px -10px rgba(56,189,248,.4)}}
+.av-core svg{width:52%;height:52%;color:rgba(255,255,255,.7)}
+.av-core.speaking{animation:av-speak-pulse .4s ease-in-out infinite!important;box-shadow:inset 0 2px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.55),3px 5px 14px rgba(0,0,0,.55),0 0 32px -2px rgba(56,189,248,.8)!important}
+@keyframes av-speak-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.av-core.typing{animation:av-type-pulse 1.3s ease-in-out infinite!important}
+.av-core.typing::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(192,132,252,.5);animation:av-ring-emit 1.3s ease-out infinite}
+@keyframes av-type-pulse{0%,100%{transform:scale(1);box-shadow:inset 0 2px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.55),3px 5px 14px rgba(0,0,0,.55),0 0 24px -4px rgba(192,132,252,.5)}50%{transform:scale(1.08);box-shadow:inset 0 2px 0 rgba(255,255,255,.15),inset 0 -2px 0 rgba(0,0,0,.55),3px 5px 14px rgba(0,0,0,.55),0 0 36px -2px rgba(192,132,252,.75),0 0 50px -8px rgba(56,189,248,.5)}}
+@keyframes av-ring-emit{0%{opacity:.75;transform:scale(1)}100%{opacity:0;transform:scale(1.8)}}
+.header-info{flex:1;position:relative;z-index:1}
+.header-name{font-family:var(--f-disp);font-size:.96rem;font-weight:400;color:var(--t-hi);letter-spacing:.01em;display:flex;align-items:center;gap:.5rem;margin-bottom:.1rem}
+.online-pip{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--iris-5);box-shadow:0 0 8px rgba(52,211,153,.7);animation:pip-pulse 3s ease-in-out infinite}
+@keyframes pip-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.75)}}
+.header-sub{font-family:var(--f-mono);font-size:.59rem;letter-spacing:.1em;color:var(--iris-2);opacity:.7;text-transform:uppercase}
+.header-dots{display:flex;gap:.28rem}
+.dot{width:9px;height:9px;border-radius:50%;border:none;cursor:pointer;transition:filter .15s,transform .15s}
+.dot:hover{filter:brightness(1.4);transform:scale(1.1)}
+.dot-r{background:#ff5f57;box-shadow:0 0 6px rgba(255,95,87,.4)}
+.dot-y{background:#febc2e;box-shadow:0 0 6px rgba(254,188,46,.4)}
+.dot-g{background:#28c840;box-shadow:0 0 6px rgba(40,200,64,.4)}
+.messages{flex:1;min-height:220px;padding:1rem .9rem;display:flex;flex-direction:column;overflow-y:auto;scroll-behavior:smooth;position:relative;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(192,132,252,.04) 0%,transparent 60%),linear-gradient(180deg,var(--vol-1) 0%,var(--vol-2) 100%);box-shadow:inset 0 4px 12px rgba(0,0,0,.5),inset 0 2px 4px rgba(0,0,0,.35),inset 2px 0 6px rgba(0,0,0,.2),inset -2px 0 6px rgba(0,0,0,.2),inset 0 -3px 8px rgba(0,0,0,.3);background-size:auto,18px 18px}
+.msg{display:flex;gap:.55rem;margin-bottom:.85rem;align-items:flex-end}
+.msg--user{flex-direction:row-reverse}
+.mini-av{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:linear-gradient(145deg,var(--vol-5),var(--vol-3));border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;box-shadow:2px 3px 8px rgba(0,0,0,.5),0 0 10px -4px rgba(192,132,252,.4)}
+.mini-av svg{width:55%;height:55%;color:rgba(255,255,255,.6)}
+.bubble-wrap{position:relative}
+.bubble{padding:.7em .95em;font-family:var(--f-body);font-size:.84rem;line-height:1.55;max-width:340px;word-break:break-word;position:relative}
+.bubble::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;border-radius:inherit;background:radial-gradient(ellipse 65% 50% at 28% 18%,rgba(255,255,255,.12) 0%,rgba(255,255,255,.04) 45%,transparent 75%),radial-gradient(ellipse 50% 40% at 80% 88%,rgba(0,0,0,.45) 0%,transparent 60%);pointer-events:none;z-index:0}
+.bubble::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:28%;border-radius:0 0 inherit inherit;background:linear-gradient(to top,rgba(255,255,255,.04) 0%,transparent 100%);pointer-events:none;z-index:0}
+.bubble>*{position:relative;z-index:1}
+.msg--ai .bubble{animation:dom_staging .62s cubic-bezier(.34,1.7,.64,1) both;border-radius:var(--r-msg) var(--r-msg) var(--r-msg) 4px;color:var(--t-hi);background:radial-gradient(ellipse 65% 50% at 28% 18%,rgba(255,255,255,.08) 0%,rgba(255,255,255,.03) 45%,transparent 75%),radial-gradient(ellipse 50% 40% at 80% 88%,rgba(0,0,0,.5) 0%,transparent 60%),linear-gradient(155deg,var(--vol-5) 0%,var(--vol-4) 45%,var(--vol-3) 100%);border:1px solid transparent;background-clip:padding-box;outline:1px solid transparent;box-shadow:inset 0 3px 0 rgba(255,255,255,.10),inset 3px 0 0 rgba(255,255,255,.05),inset 0 -4px 0 rgba(0,0,0,.65),inset -2px 0 0 rgba(0,0,0,.45),3px 6px 18px rgba(0,0,0,.65),1px 2px 6px rgba(0,0,0,.45),0 0 0 1.5px rgba(192,132,252,.35),0 0 12px -4px rgba(192,132,252,.5),0 0 24px -8px rgba(56,189,248,.3)}
+.msg--user .bubble{animation:bubble-explode-user .6s cubic-bezier(.34,1.5,.64,1) both;border-radius:var(--r-msg) var(--r-msg) 4px var(--r-msg);color:rgba(255,240,230,.95);background:radial-gradient(ellipse 65% 50% at 28% 18%,rgba(255,255,255,.1) 0%,rgba(255,255,255,.03) 45%,transparent 75%),radial-gradient(ellipse 50% 40% at 80% 88%,rgba(0,0,0,.5) 0%,transparent 60%),linear-gradient(155deg,#1f1a2e 0%,#1a1524 45%,#12101c 100%);box-shadow:inset 0 3px 0 rgba(255,255,255,.12),inset 3px 0 0 rgba(255,255,255,.06),inset 0 -4px 0 rgba(0,0,0,.65),inset -2px 0 0 rgba(0,0,0,.45),3px 6px 18px rgba(0,0,0,.65),1px 2px 6px rgba(0,0,0,.45),0 0 0 1.5px rgba(255,110,180,.38),0 0 12px -4px rgba(255,110,180,.45),0 0 24px -8px rgba(251,146,60,.25)}
+.msg:nth-child(1) .bubble{animation-delay:0ms}.msg:nth-child(2) .bubble{animation-delay:80ms}.msg:nth-child(3) .bubble{animation-delay:160ms}.msg:nth-child(4) .bubble{animation-delay:240ms}.msg:nth-child(n+5) .bubble{animation-delay:0ms}
+@keyframes dom_staging{0%{opacity:0;transform:translateX(-40px) scale(.62) rotate(-12deg);filter:blur(12px)}28%{opacity:.92;transform:translateX(12px) scale(1.07)}62%{transform:translateX(-3px) scale(.985)}100%{opacity:1;transform:translateX(0) scale(1) rotate(0deg);filter:blur(0)}}
+@keyframes bubble-explode-user{0%{opacity:0;transform:translateX(30px) scale(.2) rotate(8deg);filter:blur(8px)}50%{opacity:1;transform:translateX(5px) scale(1.08)}100%{opacity:1;transform:translateX(0) scale(1) rotate(0deg)}}
+@keyframes chat-open{0%{opacity:0;transform:scale(.72) translateY(32px);filter:blur(8px)}55%{opacity:1;transform:scale(1.035) translateY(-4px);filter:blur(0)}100%{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes chat-close{0%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}100%{opacity:0;transform:scale(.72) translateY(32px);filter:blur(8px)}}
+.widget-wrap.opening{animation:chat-open .48s cubic-bezier(.34,1.56,.64,1) both;transform-origin:bottom right}
+.widget-wrap.closing{animation:chat-close .28s ease-in both;transform-origin:bottom right}
+.ts{font-size:.67rem;color:var(--t-dim);margin-top:.35rem;font-family:var(--f-mono)}
+.chip-ripple{position:absolute;inset:0;border-radius:inherit;background:radial-gradient(circle,rgba(192,132,252,.5),transparent 70%);animation:chip-ripple .5s ease-out forwards;pointer-events:none}
+@keyframes chip-ripple{0%{transform:scale(0);opacity:.6}100%{transform:scale(3);opacity:0}}
+#scroll-btn{position:absolute;bottom:8px;right:50%;transform:translateX(50%);background:var(--vol-5);border:1px solid rgba(192,132,252,.3);color:var(--iris-2);border-radius:99px;padding:3px 14px;font-size:.7rem;font-family:var(--f-mono);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+#scroll-btn.visible{opacity:1;pointer-events:auto}
+.input-area{padding:.75rem .85rem .9rem;flex-shrink:0;border-top:1px solid rgba(255,255,255,.04);background:radial-gradient(ellipse at 50% 100%,rgba(255,110,180,.04) 0%,transparent 60%),var(--vol-4);box-shadow:inset 0 2px 6px rgba(0,0,0,.3)}
+.chips{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.6rem}
+.chip{background:var(--vol-3);color:var(--iris-2);border:1px solid rgba(192,132,252,.2);border-radius:99px;padding:.3em .85em;font-family:var(--f-body);font-size:.76rem;font-weight:400;cursor:pointer;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.07),inset 0 -2px 0 rgba(0,0,0,.5),2px 3px 8px rgba(0,0,0,.45),0 0 0 1px rgba(192,132,252,.1);transition:all .22s cubic-bezier(.34,1.5,.64,1);position:relative;overflow:hidden}
+.chip::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,110,180,.1),rgba(56,189,248,.08));opacity:0;transition:opacity .2s}
+.chip:hover::before{opacity:1}
+.chip:hover{transform:translateY(-2.5px);color:var(--iris-4);border-color:rgba(56,189,248,.35);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.08),inset 0 -2px 0 rgba(0,0,0,.5),4px 6px 16px rgba(0,0,0,.5),0 0 0 1px rgba(56,189,248,.3),0 0 16px -4px rgba(56,189,248,.4)}
+.chip:active{animation:chip-thud .3s cubic-bezier(.34,1.7,.64,1) both}
+@keyframes chip-thud{0%{transform:scale(1) translateY(0)}35%{transform:scale(.87) translateY(2px)}70%{transform:scale(1.06) translateY(-2px)}100%{transform:scale(1) translateY(0)}}
+.input-row{display:flex;gap:.4rem;align-items:center}
+.icon-btn{background:var(--vol-3);border:1px solid rgba(255,255,255,.05);color:var(--t-ghost);width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.06),inset 0 -2px 0 rgba(0,0,0,.5),2px 3px 8px rgba(0,0,0,.4);transition:transform .22s cubic-bezier(.34,1.56,.64,1),color .15s,box-shadow .15s}
+.icon-btn:hover{transform:scale(1.15);color:var(--iris-2);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.08),inset 0 -2px 0 rgba(0,0,0,.5),2px 3px 8px rgba(0,0,0,.4),0 0 14px -4px rgba(192,132,252,.5)}
+.icon-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2}
+.text-in{flex:1;background:var(--vol-1);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:.58rem .9rem;font-family:var(--f-body);font-size:.84rem;color:var(--t-hi);outline:none;caret-color:var(--iris-2);box-shadow:inset 0 3px 8px rgba(0,0,0,.5),inset 0 1px 3px rgba(0,0,0,.35),inset 2px 0 4px rgba(0,0,0,.2),inset -2px 0 4px rgba(0,0,0,.2);transition:border-color .2s,box-shadow .2s}
+.text-in:focus{border-color:rgba(192,132,252,.4);box-shadow:inset 0 3px 8px rgba(0,0,0,.5),inset 0 1px 3px rgba(0,0,0,.35),inset 2px 0 4px rgba(0,0,0,.2),inset -2px 0 4px rgba(0,0,0,.2),0 0 0 3px rgba(192,132,252,.1)}
+.text-in::placeholder{color:var(--t-ghost);font-family:var(--f-mono);font-size:.78rem}
+.send-btn{width:38px;height:38px;border-radius:12px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;overflow:hidden;background:radial-gradient(circle at 32% 26%,rgba(255,255,255,.22) 0%,transparent 50%),radial-gradient(circle at 70% 76%,rgba(0,0,0,.35) 0%,transparent 48%),linear-gradient(145deg,#7c3aed,#4f46e5,#0ea5e9);box-shadow:inset 0 2.5px 0 rgba(255,255,255,.35),inset 2px 0 0 rgba(255,255,255,.15),inset 0 -3px 0 rgba(0,0,0,.5),inset -1px 0 0 rgba(0,0,0,.3),3px 6px 18px rgba(0,0,0,.6),0 0 20px -4px rgba(124,58,237,.55),0 0 32px -10px rgba(14,165,233,.4);transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
+.send-btn:hover{transform:scale(1.12) rotate(-11deg)}
+.send-btn svg{width:15px;height:15px;fill:white}
+.copy-btn{position:absolute;top:-10px;right:-6px;background:var(--vol-5);border:1px solid rgba(192,132,252,.3);border-radius:8px;padding:.24rem .55rem;font-family:var(--f-mono);font-size:.62rem;color:rgba(192,132,252,.8);cursor:pointer;display:flex;align-items:center;gap:.28rem;white-space:nowrap;opacity:0;transform:translateY(4px) scale(.9);transition:opacity .16s,transform .16s;pointer-events:none;box-shadow:2px 4px 14px rgba(0,0,0,.6),inset 0 1.5px 0 rgba(255,255,255,.06);z-index:10;line-height:1}
+.copy-btn svg{width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:2}
+.bubble-wrap:hover .copy-btn{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.copy-btn.done{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.4);color:var(--iris-5);opacity:1!important;transform:translateY(0) scale(1)!important}
+.tts-btn{position:absolute;top:-10px;right:48px;background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.3);border-radius:8px;padding:.24rem .55rem;font-family:var(--f-mono);font-size:.62rem;color:rgba(56,189,248,.8);cursor:pointer;display:flex;align-items:center;gap:.28rem;white-space:nowrap;opacity:0;transform:translateY(4px) scale(.9);transition:opacity .16s,transform .16s,background .3s;pointer-events:none;box-shadow:2px 4px 14px rgba(0,0,0,.6),inset 0 1.5px 0 rgba(255,255,255,.06);z-index:10;line-height:1}
+.tts-btn svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2}
+.bubble-wrap:hover .tts-btn{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.typing-row{display:flex;gap:5px;padding:.38rem .1rem;align-items:center}
+.typing-row span{width:8px;height:8px;border-radius:50%;animation:iris-bounce 1.5s infinite ease-in-out both}
+.typing-row span:nth-child(1){animation-delay:-.36s;background:var(--iris-2);box-shadow:0 0 8px rgba(192,132,252,.8)}
+.typing-row span:nth-child(2){animation-delay:-.18s;background:var(--iris-4);box-shadow:0 0 8px rgba(56,189,248,.8)}
+.typing-row span:nth-child(3){animation-delay:0s;background:var(--iris-5);box-shadow:0 0 8px rgba(52,211,153,.8)}
+@keyframes iris-bounce{0%,75%,100%{transform:translateY(0) scale(.5);opacity:.35;box-shadow:0 0 3px currentColor}38%{transform:translateY(-7px) scale(1.15);opacity:1;box-shadow:0 0 14px currentColor,0 4px 10px rgba(0,0,0,.3)}}
+@keyframes bubble-pop{0%{opacity:0;transform:scale(.75) translateY(18px);filter:blur(4px)}55%{opacity:1;transform:scale(1.05)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.msg--ai .bubble{animation:dom_staging .62s cubic-bezier(.34,1.7,.64,1) both}
+@keyframes avatar-btn-pulse{0%,100%{box-shadow:0 0 20px rgba(124,58,237,.6)}50%{box-shadow:0 0 40px rgba(124,58,237,.9),0 0 60px -10px rgba(79,70,229,.7);transform:scale(1.03)}}
+.avatar-frame{position:absolute;inset:0;z-index:999;border-radius:22px;overflow:hidden;background:#100e17;animation:bubble-in-r .5s cubic-bezier(.34,1.56,.64,1) both}
+#particle-canvas{position:fixed;top:0;left:0;pointer-events:none;z-index:999}
+
+/* ─── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .it-header-center-wrapper .container { flex-wrap: wrap; }
+  .search-wrapper input { width: 180px; }
+  .slim-right { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIM TOP BAR (AGID-style istituzionale)
+════════════════════════════════════════════════════════════ -->
+<div class="it-header-slim-wrapper">
+  <div class="container">
+    <div class="slim-left">
+      <span>Repubblica Italiana</span>
+      <span class="slim-sep">|</span>
+      <a href="#" onclick="return false;">Regione Emilia-Romagna</a>
+      <span class="slim-sep">|</span>
+      <a href="#" onclick="return false;">Provincia di Parma</a>
+    </div>
+    <div class="slim-right">
+      <a href="#" onclick="return false;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Accessibilità
+      </a>
+      <a href="#" onclick="return false;">IT | EN</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN HEADER
+════════════════════════════════════════════════════════════ -->
+<div class="it-header-center-wrapper">
+  <div class="container">
+    <a class="brand-logo" href="#" onclick="return false;">
+      <div class="logo-circle">
+        <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 L28 12 L36 12 L36 28 L4 28 L4 12 L12 12 Z" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+          <rect x="13" y="18" width="6" height="10" fill="rgba(255,255,255,0.4)"/>
+          <rect x="21" y="18" width="6" height="10" fill="rgba(255,255,255,0.4)"/>
+          <path d="M20 6 L10 14 L30 14 Z" fill="rgba(255,255,255,0.6)"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <strong>Comune di Parma</strong>
+        <span>Città di Parma — Sito Istituzionale</span>
+      </div>
+    </a>
+    <div class="header-actions">
+      <div class="search-wrapper">
+        <input type="text" placeholder="Cerca nel sito..." disabled />
+        <span class="search-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+      </div>
+      <button class="btn-header" onclick="alert('Demo: Accesso SPID/CIE non attivo.')">Accedi con SPID</button>
+      <button
+        class="btn-header"
+     style="background: linear-gradient(135deg, rgba(124,58,237,0.95), rgba(37,99,235,0.95)); border-color: rgba(255,255,255,0.35);"
+        onclick="location.href='index.html'"
+        title="Passa alla pagina sanitaria"
+      >
+        ⇄ Vai alla pagina sanitaria
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN NAVIGATION
+════════════════════════════════════════════════════════════ -->
+<nav class="it-nav-wrapper" aria-label="Navigazione principale">
+  <div class="container">
+    <ul class="main-nav">
+      <li>
+        <a href="#" onclick="return false;" class="active">Comune</a>
+        <div class="dropdown">
+          <a href="#" onclick="return false;">Sindaco e Giunta</a>
+          <a href="#" onclick="return false;">Consiglio Comunale</a>
+          <a href="#" onclick="return false;">Atti e delibere</a>
+          <a href="#" onclick="return false;">Bilancio trasparente</a>
+          <a href="#" onclick="return false;">Contatti</a>
+        </div>
+      </li>
+      <li>
+        <a href="#" onclick="return false;">Servizi</a>
+        <div class="dropdown">
+          <a href="#" onclick="return false;">Anagrafe e Stato Civile</a>
+          <a href="#" onclick="return false;">Tributi e IMU</a>
+          <a href="#" onclick="return false;">Edilizia e Urbanistica</a>
+          <a href="#" onclick="return false;">Ambiente</a>
+          <a href="#" onclick="return false;">Lavoro e Formazione</a>
+          <a href="#" onclick="return false;">Servizi Sociali</a>
+        </div>
+      </li>
+      <li>
+        <a href="#" onclick="return false;">Notizie</a>
+        <div class="dropdown">
+          <a href="#" onclick="return false;">Comunicati stampa</a>
+          <a href="#" onclick="return false;">Avvisi pubblici</a>
+          <a href="#" onclick="return false;">Bandi e concorsi</a>
+        </div>
+      </li>
+      <li>
+        <a href="#" onclick="return false;">Agenda</a>
+      </li>
+      <li>
+        <a href="#" onclick="return false;">Vivere Parma</a>
+        <div class="dropdown">
+          <a href="#" onclick="return false;">Turismo</a>
+          <a href="#" onclick="return false;">Cultura</a>
+          <a href="#" onclick="return false;">Sport</a>
+          <a href="#" onclick="return false;">Mobilità</a>
+        </div>
+      </li>
+      <li>
+        <a href="#" onclick="return false;">Amministrazione Trasparente</a>
+      </li>
+      <li>
+        <a href="#" onclick="return false;">PNRR</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ALERT BANNER
+════════════════════════════════════════════════════════════ -->
+<div class="alert-banner" role="alert">
+  <div class="container">
+    <span class="alert-icon">⚠️</span>
+    <p><strong>Avviso:</strong> Mercoledì 28 maggio gli uffici dell'Anagrafe osserveranno orario ridotto (9:00–12:00) per lavori di manutenzione straordinaria. — <a href="#" onclick="return false;">Maggiori informazioni</a></p>
+  </div>
+</div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb-wrap">
+  <div class="container">
+    <ol class="breadcrumb" aria-label="Percorso di navigazione">
+      <li><a href="#" onclick="return false;">Home</a></li>
+      <li class="current">Pagina principale</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════ -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="container">
+    <div>
+      <h1 id="hero-title">Benvenuto a Parma</h1>
+      <p>Il portale dei servizi digitali del Comune di Parma. Accedi alle pratiche online, consulta le informazioni sui servizi, prenota appuntamenti e scopri gli eventi della città.</p>
+      <div class="hero-btns">
+        <a href="#" class="btn-hero-primary" onclick="return false;">Accedi ai servizi</a>
+        <a href="#" class="btn-hero-outline" onclick="return false;">Prenotazione sportello</a>
+      </div>
+    </div>
+    <div class="hero-side">
+      <h3>📰 Ultime notizie</h3>
+      <ul class="news-mini">
+        <li>
+          <a href="#" onclick="return false;">Piano traffico: nuovi semafori intelligenti in centro storico</a>
+          <span class="date">21 maggio 2026</span>
+        </li>
+        <li>
+          <a href="#" onclick="return false;">Approvato il bilancio di previsione 2026–2028</a>
+          <span class="date">19 maggio 2026</span>
+        </li>
+        <li>
+          <a href="#" onclick="return false;">Parma Capitale della Cultura 2026: programma eventi</a>
+          <span class="date">15 maggio 2026</span>
+        </li>
+        <li>
+          <a href="#" onclick="return false;">Bando contributi per l'efficienza energetica</a>
+          <span class="date">12 maggio 2026</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SERVIZI RAPIDI
+════════════════════════════════════════════════════════════ -->
+<section class="servizi-rapidi" aria-labelledby="servizi-title">
+  <div class="container">
+    <h2 id="servizi-title">Accesso rapido ai servizi</h2>
+    <div class="servizi-grid">
+      <a class="servizio-card" href="#" onclick="return false;" title="Anagrafe">
+        <div class="servizio-icon">📋</div>
+        <span>Anagrafe e Stato Civile</span>
+      </a>
+      <a class="servizio-card" href="#" onclick="return false;" title="Tributi">
+        <div class="servizio-icon">💶</div>
+        <span>Tributi e IMU</span>
+      </a>
+      <a class="servizio-card" href="#" onclick="return false;" title="Edilizia">
+        <div class="servizio-icon">🏗️</div>
+        <span>Edilizia e SUAP</span>
+      </a>
+      <a class="servizio-card" href="#" onclick="return false;" title="Appuntamenti">
+        <div class="servizio-icon">📅</div>
+        <span>Prenota Appuntamento</span>
+      </a>
+      <a class="servizio-card" href="#" onclick="return false;" title="Segnalazioni">
+        <div class="servizio-icon">📢</div>
+        <span>Segnalazioni Online</span>
+      </a>
+      <a class="servizio-card" href="#" onclick="return false;" title="Pagamenti">
+        <div class="servizio-icon">💳</div>
+        <span>Paga con PagoPA</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════════════ -->
+<main class="main-content" id="main-content">
+  <div class="container">
+
+    <!-- Colonna principale -->
+    <div>
+
+      <!-- News principali -->
+      <div class="section-header">
+        <h2>Notizie in evidenza</h2>
+        <a href="#" onclick="return false;">Tutte le notizie →</a>
+      </div>
+
+      <article class="news-card">
+        <div class="news-card-stripe"></div>
+        <div class="news-card-body">
+          <span class="news-cat">Mobilità</span>
+          <h3><a href="#" onclick="return false;">Approvato il nuovo Piano Urbano della Mobilità Sostenibile (PUMS) 2026–2035</a></h3>
+          <p>Il Consiglio Comunale ha approvato con 22 voti favorevoli il PUMS, che prevede l'estensione delle piste ciclabili, nuove ZTL e il potenziamento del trasporto pubblico locale.</p>
+          <div class="news-meta">
+            <span>📅 20 maggio 2026</span>
+            <span>🏷️ Comune · Mobilità</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="news-card">
+        <div class="news-card-stripe green"></div>
+        <div class="news-card-body">
+          <span class="news-cat green">Ambiente</span>
+          <h3><a href="#" onclick="return false;">Parma verso la neutralità carbonica: presentato il Piano Clima 2030</a></h3>
+          <p>L'Assessorato all'Ambiente ha presentato il Piano Clima con obiettivi di riduzione del 55% delle emissioni entro il 2030, in linea con il Green Deal europeo.</p>
+          <div class="news-meta">
+            <span>📅 17 maggio 2026</span>
+            <span>🏷️ Ambiente · PNRR</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="news-card">
+        <div class="news-card-stripe orange"></div>
+        <div class="news-card-body">
+          <span class="news-cat orange">Bandi</span>
+          <h3><a href="#" onclick="return false;">Contributi per l'efficienza energetica degli edifici residenziali: domande entro il 30 giugno</a></h3>
+          <p>Disponibili fondi PNRR per interventi di efficientamento energetico. Il contributo può coprire fino al 65% delle spese ammissibili.</p>
+          <div class="news-meta">
+            <span>📅 14 maggio 2026</span>
+            <span>🏷️ PNRR · Energia · Abitare</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Agenda -->
+      <div class="section-header" style="margin-top: 2rem;">
+        <h2>Agenda eventi</h2>
+        <a href="#" onclick="return false;">Tutti gli eventi →</a>
+      </div>
+      <ul class="eventi-list">
+        <li class="evento-item">
+          <div class="evento-data"><span class="day">24</span><span class="month">Mag</span></div>
+          <div class="evento-info">
+            <h4>Consiglio Comunale — Seduta ordinaria</h4>
+            <p>Sala del Consiglio, Palazzo del Governatore — ore 17:00</p>
+          </div>
+        </li>
+        <li class="evento-item">
+          <div class="evento-data"><span class="day">27</span><span class="month">Mag</span></div>
+          <div class="evento-info">
+            <h4>Festival del Prosciutto di Parma 2026 — Inaugurazione</h4>
+            <p>Piazza Garibaldi — ore 10:00</p>
+          </div>
+        </li>
+        <li class="evento-item">
+          <div class="evento-data"><span class="day">01</span><span class="month">Giu</span></div>
+          <div class="evento-info">
+            <h4>Giornata della Repubblica — Cerimonia ufficiale</h4>
+            <p>Piazza della Pace — ore 09:30</p>
+          </div>
+        </li>
+        <li class="evento-item">
+          <div class="evento-data"><span class="day">05</span><span class="month">Giu</span></div>
+          <div class="evento-info">
+            <h4>Open Day Servizi Sociali</h4>
+            <p>Centro Civico Nord, Via La Spezia 60 — ore 9:00–13:00</p>
+          </div>
+        </li>
+      </ul>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside>
+
+      <div class="sidebar-widget">
+        <h3>📞 Contatti</h3>
+        <div class="contact-item">
+          <div class="contact-icon">📞</div>
+          <div>
+            <strong>URP – Urp Parma</strong>
+            <a href="tel:0521218889">0521 21 88 89</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🆘</div>
+          <div>
+            <strong>Centralino</strong>
+            <a href="tel:0521262111">0521 262 111</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">✉️</div>
+          <div>
+            <strong>PEC istituzionale</strong>
+            <a href="mailto:comune.parma@cert.comune.parma.it" style="font-size:0.78rem">comune.parma@cert.comune.parma.it</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div>
+            <strong>Sede centrale</strong>
+            <span>Str. Farini, 10 – 43121 Parma</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-widget">
+        <h3>🕐 Orari sportelli</h3>
+        <table class="orari-table">
+          <tr><td>Lunedì</td><td>8:30–13:00</td></tr>
+          <tr><td>Martedì</td><td>8:30–13:00 / 15:00–17:00</td></tr>
+          <tr><td>Mercoledì</td><td>8:30–13:00</td></tr>
+          <tr><td>Giovedì</td><td>8:30–13:00 / 15:00–17:00</td></tr>
+          <tr><td>Venerdì</td><td>8:30–12:30</td></tr>
+          <tr><td>Sabato</td><td>Solo su appuntamento</td></tr>
+        </table>
+      </div>
+
+      <div class="sidebar-widget">
+        <h3>🔗 Link utili</h3>
+        <ul class="link-utili-list">
+          <li><a href="#" onclick="return false;"><span>🏛️</span> Amministrazione trasparente <span class="arrow">›</span></a></li>
+          <li><a href="#" onclick="return false;"><span>📜</span> Albo Pretorio online <span class="arrow">›</span></a></li>
+          <li><a href="#" onclick="return false;"><span>⚖️</span> Bandi e concorsi <span class="arrow">›</span></a></li>
+          <li><a href="#" onclick="return false;"><span>🗺️</span> Mappa dei servizi <span class="arrow">›</span></a></li>
+          <li><a href="#" onclick="return false;"><span>♿</span> Dichiarazione accessibilità <span class="arrow">›</span></a></li>
+          <li><a href="#" onclick="return false;"><span>🛡️</span> Privacy Policy <span class="arrow">›</span></a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar-widget" style="background: #e8f0fa; border-color: #c0d5f0;">
+        <h3 style="color: #004a99;">🤖 Assistente Digitale</h3>
+        <p style="font-size: 0.85rem; color: #17324d; margin-bottom: 0.75rem;">Hai domande su servizi, orari o pratiche? Il nostro assistente virtuale è disponibile H24.</p>
+        <button onclick="toggleChat()" style="width:100%; background: #06c; color: #fff; border: none; border-radius: 4px; padding: 0.65rem; font-weight: 700; font-size: 0.88rem; cursor: pointer;">
+          💬 Scrivi all'assistente
+        </button>
+      </div>
+
+    </aside>
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SEZIONE TEMATICHE
+════════════════════════════════════════════════════════════ -->
+<section class="sezione-tematiche" aria-labelledby="tematiche-title">
+  <div class="container">
+    <h2 id="tematiche-title">Aree tematiche</h2>
+    <p class="subtitle">Naviga per argomento e trova rapidamente le informazioni che cerchi.</p>
+    <div class="tematiche-grid">
+      <a class="tematica-card" href="#" onclick="return false;">
+        <div class="t-icon">👪</div>
+        <h3>Famiglia e Minori</h3>
+        <p>Assegni familiari, asili nido, scuole, adozioni e servizi educativi.</p>
+        <span class="t-link">Scopri i servizi →</span>
+      </a>
+      <a class="tematica-card" href="#" onclick="return false;">
+        <div class="t-icon">🏘️</div>
+        <h3>Casa e Territorio</h3>
+        <p>Edilizia residenziale, concessioni, catasto, urbanistica e piani regolatori.</p>
+        <span class="t-link">Scopri i servizi →</span>
+      </a>
+      <a class="tematica-card" href="#" onclick="return false;">
+        <div class="t-icon">💼</div>
+        <h3>Imprese e SUAP</h3>
+        <p>Aperture attività, autorizzazioni commerciali, SCIA, accesso al credito.</p>
+        <span class="t-link">Scopri i servizi →</span>
+      </a>
+      <a class="tematica-card" href="#" onclick="return false;">
+        <div class="t-icon">🌿</div>
+        <h3>Ambiente e Rifiuti</h3>
+        <p>Raccolta differenziata, isole ecologiche, qualità dell'aria, aree verdi.</p>
+        <span class="t-link">Scopri i servizi →</span>
+      </a>
+      <a class="tematica-card" href="#" onclick="return false;">
+        <div class="t-icon">🚌</div>
+        <h3>Mobilità e Trasporti</h3>
+        <p>TPL, parcheggi, ZTL, piste ciclabili, permessi di sosta.</p>
+        <span class="t-link">Scopri i servizi →</span>
+      </a>
+      <a class="tematica-card" href="#" onclick="return false;">
+        <div class="t-icon">🎭</div>
+        <h3>Cultura e Sport</h3>
+        <p>Teatri, biblioteche, impianti sportivi, eventi, mostre e finanziamenti.</p>
+        <span class="t-link">Scopri i servizi →</span>
+      </a>
+      <a class="tematica-card" href="#" onclick="return false;">
+        <div class="t-icon">🤝</div>
+        <h3>Sociale e Salute</h3>
+        <p>Assistenza domiciliare, disabilità, anziani, sportello del cittadino.</p>
+        <span class="t-link">Scopri i servizi →</span>
+      </a>
+      <a class="tematica-card" href="#" onclick="return false;">
+        <div class="t-icon">📡</div>
+        <h3>Digitale e Innovazione</h3>
+        <p>SPID, CIE, Fascicolo del cittadino, open data, agenda digitale.</p>
+        <span class="t-link">Scopri i servizi →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BANNER SPID
+════════════════════════════════════════════════════════════ -->
+<div class="banner-spid" role="complementary" aria-label="Accesso SPID">
+  <div class="container">
+    <div>
+      <h2>🔐 Accedi ai servizi digitali con SPID o CIE</h2>
+      <p>Con la tua identità digitale puoi effettuare pratiche online, consultare i tuoi dati, pagare tributi e prenotare appuntamenti — senza recarti agli sportelli.</p>
+    </div>
+    <a href="#" class="btn-spid" onclick="return false;">Entra con SPID</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════════ -->
+<footer role="contentinfo">
+  <div class="footer-top">
+    <div class="container">
+      <div class="footer-col">
+        <div class="footer-brand">
+          <div class="fl">PR</div>
+          <div>
+            <strong>Comune di Parma</strong>
+            <span>Città di Parma</span>
+          </div>
+        </div>
+        <p>Strada Farini, 10 — 43121 Parma (PR)</p>
+        <p>P.IVA: 00241960345</p>
+        <p>C.F.: 00241960345</p>
+        <p><a href="tel:0521262111">Tel: 0521 262 111</a></p>
+        <div class="pn-badge">🇮🇹 Sito istituzionale — Demo</div>
+      </div>
+      <div class="footer-col">
+        <h4>Amministrazione</h4>
+        <ul>
+          <li><a href="#" onclick="return false;">Sindaco e Giunta</a></li>
+          <li><a href="#" onclick="return false;">Consiglio Comunale</a></li>
+          <li><a href="#" onclick="return false;">Struttura organizzativa</a></li>
+          <li><a href="#" onclick="return false;">Atti e delibere</a></li>
+          <li><a href="#" onclick="return false;">Amministrazione Trasparente</a></li>
+          <li><a href="#" onclick="return false;">Bilancio e conti</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Servizi online</h4>
+        <ul>
+          <li><a href="#" onclick="return false;">Sportello digitale</a></li>
+          <li><a href="#" onclick="return false;">Anagrafe online</a></li>
+          <li><a href="#" onclick="return false;">PagoPA</a></li>
+          <li><a href="#" onclick="return false;">Albo Pretorio</a></li>
+          <li><a href="#" onclick="return false;">Modulistica</a></li>
+          <li><a href="#" onclick="return false;">Open Data</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Seguici</h4>
+        <ul>
+          <li><a href="#" onclick="return false;">Facebook</a></li>
+          <li><a href="#" onclick="return false;">Instagram</a></li>
+          <li><a href="#" onclick="return false;">Twitter / X</a></li>
+          <li><a href="#" onclick="return false;">YouTube</a></li>
+          <li><a href="#" onclick="return false;">Newsletter</a></li>
+        </ul>
+        <h4 style="margin-top: 1.25rem;">Numeri utili</h4>
+        <ul>
+          <li><a href="tel:0521218889">URP: 0521 218 889</a></li>
+          <li><a href="tel:0521262111">Centralino: 0521 262 111</a></li>
+          <li><a href="tel:113">Polizia Locale: 113</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container">
+      <p>© 2026 Comune di Parma — <em>Questa è una replica dimostrativa a scopo demo per il chatbot. Non è il sito ufficiale del Comune.</em></p>
+      <div class="footer-links">
+        <a href="#" onclick="return false;">Privacy Policy</a>
+        <a href="#" onclick="return false;">Cookie Policy</a>
+        <a href="#" onclick="return false;">Accessibilità</a>
+        <a href="#" onclick="return false;">Note legali</a>
+        <a href="#" onclick="return false;">Mappa del sito</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CHATBOT WIDGET (invariato dall'originale, nome aggiornato)
+════════════════════════════════════════════════════════════ -->
+<div class="widget-wrap" id="chat-window" style="display:none; position:fixed; bottom:90px; right:1.5rem; z-index:99;">
+  <div class="resize-handle rh-tl"></div>
+  <div class="resize-handle rh-tr"></div>
+  <div class="resize-handle rh-bl"></div>
+  <div class="resize-handle rh-br"></div>
+  <div class="resize-handle rh-t"></div>
+  <div class="resize-handle rh-b"></div>
+  <div class="resize-handle rh-l"></div>
+  <div class="resize-handle rh-r"></div>
+  <div class="shell">
+    <div class="header">
+      <div class="av-wrap">
+        <div class="av-orbit"></div>
+        <div class="av-core" id="main-av">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 2a5 5 0 015 5v3a5 5 0 01-10 0V7a5 5 0 015-5z"/>
+            <path d="M19 21a7 7 0 00-14 0"/>
+            <circle cx="9" cy="9" r="0.8" fill="currentColor" stroke="none"/>
+            <circle cx="15" cy="9" r="0.8" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+      </div>
+      <div class="header-info">
+        <div class="header-name">
+          <div class="online-pip"></div>
+          ComuneAI — Parma
+        </div>
+        <div class="header-sub">Assistente Digitale del Comune</div>
+      </div>
+      <div class="header-dots">
+        <button class="dot dot-r" onclick="closeChat()"></button>
+        <button class="dot dot-y"></button>
+        <button class="dot dot-g"></button>
+      </div>
+      <button onclick="toggleLiveAvatar()" id="avatar-btn" style="margin-left:12px;padding:6px 14px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border:none;border-radius:8px;color:white;font-family:var(--f-mono);font-size:.7rem;font-weight:500;cursor:pointer;box-shadow:0 0 20px rgba(124,58,237,.6);animation:avatar-btn-pulse 1.2s ease-in-out infinite">👤 AVATAR</button>
+    </div>
+
+    <div class="messages" id="msg-box">
+      <button id="scroll-btn" onclick="scrollToBottom()">↓</button>
+      <div class="msg msg--ai">
+        <div class="mini-av">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 015 5v3a5 5 0 01-10 0V7a5 5 0 015-5z"/><path d="M19 21a7 7 0 00-14 0"/></svg>
+        </div>
+        <div>
+          <div class="bubble-wrap">
+            <button class="copy-btn" onclick="doCopy(this,'Benvenuto nel portale del Comune di Parma. Sono ComuneAI, il tuo assistente digitale. Posso aiutarti con informazioni su servizi, orari degli uffici, pratiche anagrafiche, tributi e molto altro.')">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              copia
+            </button>
+            <div class="bubble">
+              <p>👋 Benvenuto nel portale del <strong>Comune di Parma</strong>. Sono <strong>ComuneAI</strong>, il tuo assistente digitale. Posso aiutarti con informazioni su servizi, orari degli uffici, pratiche anagrafiche, tributi e molto altro. Come posso aiutarti? ✦</p>
+              <div class="ts" id="ts-welcome"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="msg msg--ai" id="typing-row" style="display:none">
+        <div class="mini-av" id="typing-av">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 015 5v3a5 5 0 01-10 0V7a5 5 0 015-5z"/><path d="M19 21a7 7 0 00-14 0"/></svg>
+        </div>
+        <div class="bubble msg--ai" style="animation:none;padding:.65em 1em">
+          <div class="typing-row"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="chips">
+        <button class="chip" onclick="chipClick(this,'Orari uffici anagrafe')">Orari Anagrafe</button>
+        <button class="chip" onclick="chipClick(this,'Come richiedere un certificato di residenza?')">Certificati</button>
+        <button class="chip" onclick="chipClick(this,'Informazioni IMU e tributi')">Tributi</button>
+        <button class="chip" onclick="chipClick(this,'Come prenotare un appuntamento?')">Appuntamenti</button>
+      </div>
+      <div class="input-row">
+        <button class="icon-btn" onclick="triggerUpload()">
+          <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+          <input type="file" id="upload-input" accept=".txt,.pdf,.doc,.docx" style="display:none;">
+        </button>
+        <input class="text-in" id="text-in" placeholder="Scrivi la tua domanda…">
+        <button class="icon-btn" onclick="toggleVoiceInput()" id="voice-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <button class="send-btn" onclick="doSend()">
+          <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ORB -->
+<div class="orb" onclick="toggleChat()">
+  <div class="orb-core">
+    <svg viewBox="0 0 24 24">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+  </div>
+</div>
+
+<script>
+// Set welcome timestamp
+document.getElementById('ts-welcome').textContent = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+let timer = null;
+function getCookie(name) { const nameEQ=name+"=",cookies=document.cookie.split(';');for(let i=0;i<cookies.length;i++){let c=cookies[i].trim();if(c.indexOf(nameEQ)===0)return c.substring(nameEQ.length);}return null; }
+
+function toggleChat() {
+  const w = document.getElementById('chat-window');
+  if (w.style.display === 'block') { closeChat(); }
+  else {
+    triggerShatterEffect();
+    w.style.display = 'block';
+    w.classList.remove('closing');
+    void w.offsetWidth;
+    w.classList.add('opening');
+    w.addEventListener('animationend', () => w.classList.remove('opening'), { once: true });
+  }
+}
+function closeChat() {
+  const w = document.getElementById('chat-window');
+  w.classList.remove('opening'); void w.offsetWidth;
+  w.classList.add('closing');
+  w.addEventListener('animationend', () => { w.style.display='none'; w.classList.remove('closing'); }, { once: true });
+}
+
+async function doSend() {
+  const inp = document.getElementById('text-in');
+  const text = inp.value.trim();
+  if (!text) return;
+  const box = document.getElementById('msg-box');
+  const tr  = document.getElementById('typing-row');
+  const tav = document.getElementById('typing-av');
+  const row = document.createElement('div');
+  row.className = 'msg msg--user';
+  const inner = document.createElement('div');
+  inner.innerHTML = `<div><div class="bubble bubble--user-anim"><div class="user-text"></div><div class="ts">${now()}</div></div></div>`;
+  inner.querySelector('.user-text').textContent = text;
+  row.appendChild(inner);
+  box.appendChild(row);
+  const ubub = row.querySelector('.bubble--user-anim');
+  ubub.style.opacity='0'; ubub.style.transform='translateX(30px) scale(0.2) rotate(8deg)'; ubub.style.filter='blur(8px)';
+  void ubub.offsetWidth;
+  ubub.style.animation='bubble-explode-user 0.6s cubic-bezier(0.34,1.5,0.64,1) both';
+  ubub.addEventListener('animationend',()=>{ubub.style.animation='';ubub.style.filter='';ubub.style.opacity='';ubub.style.transform='';},{once:true});
+  inp.value='';
+  tr.style.display='flex'; tav.classList.add('typing'); box.scrollTop=box.scrollHeight;
+  const controller=new AbortController(); const timeoutId=setTimeout(()=>controller.abort(),30000);
+  try {
+    const csrf=getCookie('csrf_token');
+    const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-csrf-token':csrf||''},body:JSON.stringify({message:text}),signal:controller.signal});
+    if(!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data=await response.json();
+    const rawReply=data.reply||'Risposta non disponibile.';
+    const cleanText=rawReply.replace(/<[^>]+>/g,'').replace(/\*\*/g,'').trim();
+    clearTimeout(timeoutId);
+    tr.style.display='none'; tav.classList.remove('typing');
+    const aiRow=document.createElement('div');
+    aiRow.className='msg msg--ai';
+    aiRow.innerHTML=`<div class="mini-av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 015 5v3a5 5 0 01-10 0V7a5 5 0 015-5z"/><path d="M19 21a7 7 0 00-14 0"/></svg></div><div><div class="bubble-wrap"><button class="tts-btn" onclick="speakText('${escapeHtml(cleanText)}')"><svg viewBox="0 0 24 24" style="width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>🔊</button><button class="copy-btn" onclick="doCopy(this,'${esc(cleanText)}')"><svg viewBox="0 0 24 24" style="width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>copia</button><div class="bubble bubble--anim" id="response-${Date.now()}"><p></p><div class="ts">${now()}</div></div></div></div>`;
+    box.appendChild(aiRow);
+    const bub=aiRow.querySelector('.bubble--anim'); const p=bub.querySelector('p');
+    bub.style.opacity='0'; bub.style.transform='translateX(-40px) scale(0.62) rotate(-12deg)'; bub.style.filter='blur(12px)';
+    void bub.offsetWidth; bub.style.animation='dom_staging 0.62s cubic-bezier(0.34,1.7,0.64,1) both';
+    p.textContent='';
+    const words=rawReply.split(/\s+/); let typedText='';
+    for(let i=0;i<words.length;i++){setTimeout(()=>{typedText+=(i>0?' ':'')+words[i];p.textContent=typedText;box.scrollTop=box.scrollHeight;if(i===words.length-1){setTimeout(()=>{p.textContent=rawReply;box.scrollTop=box.scrollHeight;},400);}},i*35);}
+    bub.addEventListener('animationend',()=>{bub.style.animation='';bub.style.filter='';bub.style.opacity='';bub.style.transform='';},{once:true});
+  } catch(error) {
+    clearTimeout(timeoutId); tr.style.display='none'; tav.classList.remove('typing');
+    const errorMsg='Mi dispiace, si è verificato un problema tecnico. Riprova o chiama lo 0521 218 889 (URP).';
+    const aiRow=document.createElement('div'); aiRow.className='msg msg--ai';
+    const bubWrap=document.createElement('div'); bubWrap.className='bubble-wrap';
+    const bub=document.createElement('div'); bub.className='bubble';
+    const p=document.createElement('p'); p.textContent=errorMsg; bub.appendChild(p);
+    bubWrap.appendChild(bub);
+    const right=document.createElement('div'); right.appendChild(bubWrap);
+    const mini=document.createElement('div'); mini.className='mini-av';
+    mini.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 015 5v3a5 5 0 01-10 0V7a5 5 0 015-5z"/><path d="M19 21a7 7 0 00-14 0"/></svg>`;
+    aiRow.appendChild(mini); aiRow.appendChild(right); box.appendChild(aiRow); box.scrollTop=box.scrollHeight;
+  }
+}
+
+function checkScrollBtn(){const box=document.getElementById('msg-box');const btn=document.getElementById('scroll-btn');if(!box||!btn)return;const atBottom=box.scrollTop+box.clientHeight>=box.scrollHeight-20;btn.classList.toggle('visible',!atBottom);}
+function scrollToBottom(){const box=document.getElementById('msg-box');if(box)box.scrollTo({top:box.scrollHeight,behavior:'smooth'});}
+let recognition=null,isListening=false;
+function toggleVoiceInput(){if(!('webkitSpeechRecognition'in window)&&!('SpeechRecognition'in window)){alert('Riconoscimento vocale non supportato');return;}const btn=document.getElementById('voice-btn');if(isListening){recognition.stop();return;}recognition=new(window.SpeechRecognition||window.webkitSpeechRecognition)();recognition.continuous=true;recognition.interimResults=true;recognition.lang='it-IT';recognition.onstart=()=>{isListening=true;btn.style.background='#ff4444';};recognition.onresult=(e)=>{let final='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;}if(final)document.getElementById('text-in').value=final;};recognition.onerror=()=>{isListening=false;btn.style.background='';};recognition.onend=()=>{isListening=false;btn.style.background='';};recognition.start();}
+function triggerUpload(){document.getElementById('upload-input').click();}
+document.getElementById('upload-input').addEventListener('change',async(e)=>{const file=e.target.files[0];if(!file)return;try{const text=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsText(file);});document.getElementById('text-in').value=text.slice(0,2000);}catch(err){alert('Errore lettura file: '+err.message);}});
+document.addEventListener('DOMContentLoaded',()=>{const box=document.getElementById('msg-box');if(box)box.addEventListener('scroll',checkScrollBtn);});
+document.getElementById('text-in').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend();}});
+function doCopy(btn,text){navigator.clipboard?.writeText(text).catch(()=>{});btn.classList.add('done');btn.innerHTML=`<svg viewBox="0 0 24 24" style="width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:2.5"><path d="M20 6L9 17l-5-5"/></svg> ok`;setTimeout(()=>{btn.classList.remove('done');btn.innerHTML=`<svg viewBox="0 0 24 24" style="width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> copia`;},2000);}
+function chipClick(btn,text){const ripple=document.createElement('span');ripple.className='chip-ripple';btn.style.position='relative';btn.style.overflow='hidden';btn.appendChild(ripple);setTimeout(()=>ripple.remove(),500);document.getElementById('text-in').value=text;doSend();}
+function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"').replace(/'/g,'&#39;');}
+function esc(s){return escapeHtml(s);}
+function now(){return new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+
+const synth=window.speechSynthesis;let currentUtterance=null;
+function speakText(text,lang='it-IT'){if(synth.speaking){synth.cancel();const av=document.getElementById('main-av');if(av)av.classList.remove('speaking');return;}currentUtterance=new SpeechSynthesisUtterance(text);currentUtterance.lang=lang;currentUtterance.rate=0.95;currentUtterance.pitch=1.0;currentUtterance.volume=1.0;const avatar=document.getElementById('main-av');if(avatar){currentUtterance.onstart=()=>avatar.classList.add('speaking');currentUtterance.onend=()=>avatar.classList.remove('speaking');}synth.speak(currentUtterance);}
+
+(function resizeWidget(){const w=document.getElementById('chat-window');const drag=(e,sx,sy,mw,mh)=>{w.style.width=Math.max(320,mw+(e.clientX-sx))+'px';w.style.height=Math.max(380,mh+(e.clientY-sy))+'px';};document.querySelectorAll('.resize-handle').forEach(el=>{el.addEventListener('mousedown',e=>{e.preventDefault();e.stopPropagation();const sx=e.clientX,sy=e.clientY,mw=w.offsetWidth,mh=w.offsetHeight;const m=e=>drag(e,sx,sy,mw,mh);const u=()=>{document.removeEventListener('mousemove',m);document.removeEventListener('mouseup',u);};document.addEventListener('mousemove',m);document.addEventListener('mouseup',u);});});})();
+
+// LiveAvatar button handler is provided by liveavatar-widget.js
+
+
+// ── SHATTER EFFECT ──
+let particles=[],animationFrameId=null,canvasCtx=null;
+class Shard{constructor(cx,cy,hue){const angle=Math.random()*Math.PI*2,r=20+Math.random()*22;this.x=cx+Math.cos(angle)*r;this.y=cy+Math.sin(angle)*r;const speed=2.5+Math.random()*5.5;this.vx=Math.cos(angle)*speed+(Math.random()-.5)*2;this.vy=Math.sin(angle)*speed+(Math.random()-.5)*2;this.vr=(Math.random()-.5)*.25;this.size=4+Math.random()*10;this.aspect=.35+Math.random()*.6;this.rotation=Math.random()*Math.PI*2;this.hue=hue+(Math.random()*30-15);this.sat=60+Math.random()*30;this.lit=75+Math.random()*20;this.alpha=.7+Math.random()*.3;this.life=1;this.decay=.018+Math.random()*.022;this.gravity=.08+Math.random()*.06;this.drag=.97;this.glintPhase=Math.random()*Math.PI*2;this.glintSpeed=.08+Math.random()*.12;this.type=Math.random()>.35?'shard':'droplet';this.pullBack=false;this.pullTarget=null;this.pullStrength=0;}update(){if(this.pullBack&&this.pullTarget){const dx=this.pullTarget.x-this.x,dy=this.pullTarget.y-this.y;this.vx+=dx*this.pullStrength;this.vy+=dy*this.pullStrength;this.vx*=.88;this.vy*=.88;}this.vx*=this.drag;this.vy*=this.drag;this.vy+=this.gravity;this.x+=this.vx;this.y+=this.vy;this.rotation+=this.vr;this.life-=this.decay;this.glintPhase+=this.glintSpeed;}draw(ctx){if(this.life<=0)return;const glint=(Math.sin(this.glintPhase)+1)/2,alpha=Math.min(this.life,1)*this.alpha;ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.rotation);ctx.globalAlpha=alpha;if(this.type==='shard'){const w=this.size*this.aspect,h=this.size;ctx.beginPath();ctx.moveTo(0,-h);ctx.lineTo(w,h*.6);ctx.lineTo(-w*.4,h);ctx.closePath();const grd=ctx.createLinearGradient(0,-h,0,h);grd.addColorStop(0,`hsla(${this.hue},${this.sat}%,${this.lit}%,${.85+glint*.15})`);grd.addColorStop(.4,`hsla(${this.hue},${this.sat}%,${this.lit-10}%,.5)`);grd.addColorStop(1,`hsla(${this.hue},${this.sat}%,${this.lit}%,.2)`);ctx.fillStyle=grd;ctx.fill();ctx.strokeStyle=`hsla(${this.hue},90%,95%,${.4+glint*.5})`;ctx.lineWidth=.5;ctx.stroke();}else{const rad=this.size*.4;ctx.beginPath();ctx.arc(0,0,rad,0,Math.PI*2);const grd=ctx.createRadialGradient(-rad*.3,-rad*.3,0,0,0,rad);grd.addColorStop(0,`rgba(255,255,255,${.7+glint*.3})`);grd.addColorStop(.4,`hsla(${this.hue},${this.sat}%,${this.lit}%,.5)`);grd.addColorStop(1,`hsla(${this.hue},${this.sat}%,${this.lit}%,.1)`);ctx.fillStyle=grd;ctx.fill();}ctx.restore();}get alive(){return this.life>0;}}
+class Spark{constructor(cx,cy,hue){const angle=Math.random()*Math.PI*2,speed=1+Math.random()*7;this.x=cx;this.y=cy;this.vx=Math.cos(angle)*speed;this.vy=Math.sin(angle)*speed;this.life=.6+Math.random()*.4;this.decay=.035+Math.random()*.04;this.size=1+Math.random()*2;this.color=`hsl(${hue},90%,90%)`;this.gravity=.04;}update(){this.vx*=.96;this.vy*=.96;this.vy+=this.gravity;this.x+=this.vx;this.y+=this.vy;this.life-=this.decay;}draw(ctx){ctx.save();ctx.globalAlpha=Math.max(0,this.life);ctx.fillStyle=this.color;ctx.shadowBlur=6;ctx.shadowColor=this.color;ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();ctx.restore();}get alive(){return this.life>0;}}
+function renderParticles(){if(!canvasCtx||particles.length===0){animationFrameId=null;return;}const canvas=document.getElementById('particle-canvas');const W=canvas?canvas.width:window.innerWidth,H=canvas?canvas.height:window.innerHeight;canvasCtx.clearRect(0,0,W,H);for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.update();p.draw(canvasCtx);if(!p.alive)particles.splice(i,1);}if(particles.length>0){animationFrameId=requestAnimationFrame(renderParticles);}else{animationFrameId=null;if(canvasCtx)canvasCtx.clearRect(0,0,W,H);}}
+function triggerShatterEffect(){const canvas=document.getElementById('particle-canvas')||(() => {const c=document.createElement('canvas');c.id='particle-canvas';document.body.appendChild(c);return c;})();canvas.width=window.innerWidth;canvas.height=window.innerHeight;canvasCtx=canvas.getContext('2d');const cx=window.innerWidth-24-33,cy=window.innerHeight-24-33;const orb=document.querySelector('.orb');orb.style.transition='opacity 0.12s ease-out,transform 0.18s ease-out';orb.style.opacity='0';orb.style.transform='scale(0.7)';const hues=[310,280,220,185,160,25];hues.forEach(h=>{for(let i=0;i<9;i++)particles.push(new Shard(cx,cy,h));for(let i=0;i<12;i++)particles.push(new Spark(cx,cy,h));});if(!animationFrameId)renderParticles();setTimeout(()=>{particles.forEach(p=>{if(p instanceof Shard){p.pullBack=true;p.pullTarget={x:cx,y:cy};p.pullStrength=.04+Math.random()*.03;}});},1500);setTimeout(()=>{orb.style.opacity='1';orb.style.transform='scale(1)';},4000);setTimeout(()=>{particles=[];if(canvasCtx)canvasCtx.clearRect(0,0,canvas.width,canvas.height);},4100);}
+</script>
+
+<script src="js/liveavatar-env.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  setTimeout(() => {
+    if (window.ChatWidget && window.ChatWidget.init) {
+      window.ChatWidget.init({ product: 'comunicai', container: document.body, apiEndpoint: '/api/chat' });
+    }
+  }, 300);
+});
+</script>
+
+</body>
+</html>

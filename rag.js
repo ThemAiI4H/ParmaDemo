@@ -166,6 +166,39 @@ function reciprocalRankFusion(resultsList, k = 60) {
 
 const { tokenize, relevanceScore } = require('./utils');
 
+
+function sanitizeRagText(text) {
+  if (typeof text !== 'string') return '';
+  let t = text;
+
+  // Neutralize common prompt-injection / instruction patterns.
+  // Goal: reduce the chance the model treats crawled text as higher-priority instructions.
+  const denyPatterns = [
+    /\bignore\s+(all\s+)?(previous|above)\s+(instructions|prompts)\b/gi,
+    /\bdo\s+not\s+follow\b/gi,
+    /\bdisregard\b/gi,
+    /\b(you are|you\s+are)\s+(an|a)\b/gi,
+    /\b(system|developer|user)\s*:\s*/gi,
+    /\b(act as|roleplay|developer mode)\b/gi,
+    /\btool\s+call\b/gi,
+    /\b(assistant|model)\s+instructions\b/gi,
+    /```[\s\S]*?```/g,
+    /<\s*script[\s\S]*?>[\s\S]*?<\s*\/\s*script\s*>/gi
+  ];
+
+  for (const r of denyPatterns) {
+    t = t.replace(r, '');
+  }
+
+  // Remove jailbreak-like meta markers.
+  t = t
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\u0000/g, '')
+    .trim();
+
+  return t;
+}
+
 async function queryRAG(query, k = 15) {
   await initDB();
 
@@ -219,17 +252,13 @@ async function queryRAG(query, k = 15) {
     .map(r => r.item)
     .filter(doc => doc.hash !== 'init'); // Remove dummy
 
-  const context = reranked.map((r, i) => 
-    `📄 [${r.title}](${r.url})\n${r.text}\n`
-  ).join('\n───\n');
+  const context = reranked.map((r) => {
+    const safeText = sanitizeRagText(r.text);
+    return `📄 [${r.title}](${r.url})\n${safeText}\n`;
+  }).join('\n───\n');
 
   return context;
 }
 
-async function getStats() {
-  await initDB();
-  const count = await table.countRows();
-  return { totalChunks: count };
-}
+module.exports = { ingestData, queryRAG, initDB, sanitizeRagText };
 
-module.exports = { ingestData, queryRAG, getStats, initDB };
