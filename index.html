@@ -1219,7 +1219,7 @@ async function doSend() {
       </div>
       <div>
         <div class="bubble-wrap">
-          <button class="tts-btn" onclick="speakText('${escapeHtml(cleanText)}')">
+          <button class="tts-btn" data-tts-text="${encodeURIComponent(cleanText)}" type="button">
 
             <svg viewBox="0 0 24 24" style="width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>
             🔊
@@ -1410,6 +1410,16 @@ document.addEventListener('DOMContentLoaded', () => {
     box.addEventListener('scroll', checkScrollBtn);
     box.addEventListener('DOMNodeInserted', () => {
       setTimeout(checkScrollBtn, 100);
+      // Attach click listener to newly inserted TTS buttons
+      const ttsBtn = box.querySelector('.tts-btn:not([data-listener-attached])');
+      if (ttsBtn) {
+        ttsBtn.setAttribute('data-listener-attached', 'true');
+        ttsBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const text = decodeURIComponent(ttsBtn.dataset.ttsText || '');
+          if (text) speakText(text, ttsBtn);
+        });
+      }
     });
   }
 });
@@ -1721,10 +1731,11 @@ function triggerShatterEffect() {
 }
 
 // ── TTS (OpenAI) ──
-async function speakText(text) {
+async function speakText(text, btnElement) {
   // Solo OpenAI TTS: nessun fallback SpeechSynthesis.
   // Endpoint: /api/tts (da implementare lato server).
-  const btn = document.querySelector('.tts-btn');
+  // btnElement: optional reference to the button that triggered this call
+  const btn = btnElement || document.querySelector('.tts-btn');
   if (btn) btn.disabled = true;
 
   const avatar = document.getElementById('main-av');
