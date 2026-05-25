@@ -23,7 +23,8 @@ const {
 } = require('./security_middleware.js');
 
 const cookieParser = require('cookie-parser');
-const { csrfProtection, generateCsrfToken } = require('./csrf_middleware.js');
+const { generateCsrfToken } = require('./csrf_middleware.js');
+
 
 
 
@@ -143,7 +144,7 @@ app.use(ensureCsrfCookie);
 const liveavatarSessions = new Map();
 
 // POST /api/liveavatar/session - Create session server-side
-app.post('/api/liveavatar/session', csrfProtection({ cookieName: 'csrf_token', headerName: 'x-csrf-token' }), async (req, res) => {
+app.post('/api/liveavatar/session', async (req, res) => {
 
   try {
     const { sessionId } = req.body;
@@ -368,7 +369,6 @@ app.post(
   '/api/dom_staging',
   rateLimit({ windowMs: 60_000, max: 20 }),
   validateDomStagingBody(),
-  csrfProtection({ cookieName: 'csrf_token', headerName: 'x-csrf-token' }),
   async (req, res) => {
 
     try {
@@ -439,7 +439,6 @@ app.post(
   '/api/chat',
   rateLimit({ windowMs: 60_000, max: 20 }),
   validateJsonBody({ required: ['message'], maxMessageLen: 4000 }),
-  csrfProtection({ cookieName: 'csrf_token', headerName: 'x-csrf-token' }),
   async (req, res) => {
 
     try {
@@ -462,7 +461,7 @@ app.post(
 
 
 
-app.post('/api/ingest', csrfProtection({ cookieName: 'csrf_token', headerName: 'x-csrf-token' }), async (req, res) => {
+app.post('/api/ingest', async (req, res) => {
 
   try {
     await crawlSites();
