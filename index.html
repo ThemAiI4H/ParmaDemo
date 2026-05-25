@@ -1131,6 +1131,16 @@ function closeChat() {
   }, { once: true });
 }
 
+function getCookie(name) {
+  const nameEQ = name + "=";
+  const cookies = document.cookie.split(';');
+  for (let i = 0; i < cookies.length; i++) {
+    const c = cookies[i].trim();
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length);
+  }
+  return null;
+}
+
 async function doSend() {
   const inp = document.getElementById('text-in');
   const text = inp.value.trim();
