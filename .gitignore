@@ -9,4 +9,5 @@ demo.txt
 .DS_Store
 .nyc_output
 coverage/
+.md
 
