@@ -1,66 +1,90 @@
 require('dotenv').config();
 const OpenAI = require('openai');
-const lancedb = require('@lancedb/lancedb');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
+const tiktoken = require('tiktoken');
+const { getTable } = require('./src/lib/lancedb');
+const { createEmbedder } = require('./src/lib/embeddings');
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const embedder = createEmbedder({ openai });
 const RAW_DIR = path.join(__dirname, 'data/raw');
-const DB_PATH = path.join(__dirname, 'data/lancedb');
 
-let db = null;
 let table = null;
 
 async function initDB() {
-  if (db) return;
-  db = await lancedb.connect(DB_PATH);
-  
-  const tables = await db.tableNames();
-  if (!tables.includes('documents')) {
-    // Dummy record per inizializzare correttamente lo schema LanceDB
-    const dummy = [{
-      vector: Array(1536).fill(0),
-      text: 'init',
-      title: 'init',
-      url: 'init',
-      site: 'init',
-      hash: 'init',
-      createdAt: Date.now()
-    }];
-    table = await db.createTable('documents', dummy);
-  } else {
-    table = await db.openTable('documents');
-  }
+  if (table) return;
+  table = await getTable();
 }
 
-function semanticChunk(text, maxChunkSize = 800, overlap = 120) {
-  const sentences = text.split(/(?<=[.!?])\s+(?=[A-Z])/);
+// Token-aware chunking (technique ported from the Staging project's knowledge-engine):
+// group paragraphs into ~1000-token windows, hard-splitting any paragraph that alone
+// exceeds the budget (with a 150-token overlap between hard-split pieces).
+const CHUNK_TOKENS = 1000;
+const CHUNK_OVERLAP_TOKENS = 150;
+const MIN_CHUNK_CHARS = 150;
+const MAX_CHUNK_CHARS = 6000;
+
+let _enc = null;
+function encoder() {
+  if (!_enc) _enc = tiktoken.encoding_for_model('text-embedding-3-small');
+  return _enc;
+}
+
+function tokenLength(text) {
+  return encoder().encode(text).length;
+}
+
+function decodeTokens(tokens) {
+  const decoded = encoder().decode(tokens);
+  return (decoded instanceof Uint8Array ? Buffer.from(decoded).toString('utf8') : decoded).trim();
+}
+
+function splitParagraphs(text) {
+  return String(text || '')
+    .replace(/\r/g, '')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .split(/\n\s*\n/)
+    .map(p => p.trim())
+    .filter(Boolean);
+}
+
+function splitLargeParagraph(paragraph) {
+  const tokens = encoder().encode(paragraph);
+  const out = [];
+  let i = 0;
+  while (i < tokens.length) {
+    const decoded = decodeTokens(tokens.slice(i, i + CHUNK_TOKENS));
+    if (decoded.length >= MIN_CHUNK_CHARS) out.push(decoded);
+    i += CHUNK_TOKENS - CHUNK_OVERLAP_TOKENS;
+  }
+  return out;
+}
+
+function semanticChunk(text) {
+  const paragraphs = splitParagraphs(text);
   const chunks = [];
-  let currentChunk = [];
-  let currentLength = 0;
+  let current = '';
 
-  for (const sentence of sentences) {
-    const trimmed = sentence.trim();
-    if (!trimmed) continue;
-    
-    if (currentLength + trimmed.length > maxChunkSize && currentChunk.length > 0) {
-      chunks.push(currentChunk.join(' '));
-      
-      const overlapSentences = currentChunk.slice(-Math.ceil(overlap / 100));
-      currentChunk = overlapSentences;
-      currentLength = overlapSentences.reduce((sum, s) => sum + s.length, 0);
+  for (const p of paragraphs) {
+    const candidate = current ? `${current}\n\n${p}` : p;
+    if (tokenLength(candidate) <= CHUNK_TOKENS) {
+      current = candidate;
+      continue;
     }
-    
-    currentChunk.push(trimmed);
-    currentLength += trimmed.length;
+    if (current) chunks.push(current);
+    if (tokenLength(p) > CHUNK_TOKENS) {
+      chunks.push(...splitLargeParagraph(p));
+      current = '';
+    } else {
+      current = p;
+    }
   }
-  
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk.join(' '));
-  }
+  if (current) chunks.push(current);
 
-  return chunks.filter(c => c.length > 150 && c.length < 2000);
+  return chunks.filter(c => c.length >= MIN_CHUNK_CHARS && c.length <= MAX_CHUNK_CHARS);
 }
 
 async function loadRawDocs() {
@@ -122,14 +146,10 @@ async function ingestData() {
     const batch = newChunks.slice(i, i + BATCH_SIZE);
     console.log(`\n⚡ Embedding batch ${Math.floor(i/BATCH_SIZE)+1}/${Math.ceil(newChunks.length/BATCH_SIZE)} (${batch.length} items)`);
 
-    const response = await openai.embeddings.create({
-      model: "text-embedding-3-small",
-      input: batch.map(c => c.text),
-      dimensions: 1536
-    });
+    const embeddings = await embedder.embedBatch(batch);
 
     const vectors = batch.map((chunk, idx) => ({
-      vector: response.data[idx].embedding,
+      vector: embeddings[idx],
       text: chunk.text,
       title: chunk.title,
       url: chunk.url,
@@ -161,7 +181,7 @@ function reciprocalRankFusion(resultsList, k = 60) {
 
   return Array.from(scores.values())
     .sort((a, b) => b.score - a.score)
-    .map(s => s.item);
+    .map(s => ({ ...s.item, rrfScore: s.score }));
 }
 
 const { tokenize, relevanceScore } = require('./utils');
@@ -199,66 +219,77 @@ function sanitizeRagText(text) {
   return t;
 }
 
-async function queryRAG(query, k = 15) {
+/**
+ * Retrieval completo: ritorna sia il testo di contesto formattato sia i
+ * metadati per-documento (titolo/url/score) necessari a costruire citazioni
+ * lato agente (src/agents/rag-agent.js). queryRAG() sotto resta un wrapper
+ * di comodo che restituisce solo la stringa, per compatibilità con il
+ * codice esistente.
+ */
+async function retrieve(query, k = 15) {
   await initDB();
 
-  // Query expansion for booking terms
+  // Query expansion for booking terms (matches when the term appears anywhere in the query)
   const expansions = {
     'prenotare': ['prenotazione', 'appuntamento', 'visita', 'segreteria', 'telefono'],
     'visita': ['prenotazione', 'appuntamento', 'ambulatoriale'],
   };
-  const expandedQuery = expansions[query.toLowerCase()] 
-    ? query + ' ' + expansions[query.toLowerCase()].join(' ')
+  const lowerQuery = query.toLowerCase();
+  const matchedTerms = Object.keys(expansions).filter(term =>
+    new RegExp(`\\b${term}\\b`, 'i').test(lowerQuery)
+  );
+  const expandedQuery = matchedTerms.length
+    ? query + ' ' + [...new Set(matchedTerms.flatMap(t => expansions[t]))].join(' ')
     : query;
 
-  const embedding = await openai.embeddings.create({
-    model: "text-embedding-3-small",
-    input: expandedQuery,
-    dimensions: 1536
-  });
+  const queryVector = await embedder.embed(expandedQuery);
 
   // 1. SEMANTIC SEARCH (top 50)
   const vectorResults = await table
     .query()
-    .nearestTo(embedding.data[0].embedding)
+    .nearestTo(queryVector)
     .limit(50)
     .toArray();
 
   // 2. KEYWORD BM25-like (top 20)
   const allDocs = await table.query().limit(2000).toArray();
   const keywordResults = allDocs
-    .map(doc => ({ 
-      ...doc, 
+    .map(doc => ({
+      ...doc,
       score: relevanceScore(query, doc.text),
-      type: 'keyword' 
+      type: 'keyword'
     }))
     .filter(r => r.score > 0.15)
     .sort((a, b) => b.score - a.score)
     .slice(0, 20);
 
-  // 3. RRF Fusion
-  const fused = [...vectorResults, ...keywordResults]
-    .reduce((acc, doc) => {
-      const key = doc.hash;
-      acc[key] = acc[key] || { item: doc, rrf: 0 };
-      const rank = acc[key].rrf;
-      acc[key].rrf += 1 / (60 + rank);
-      return acc;
-    }, {});
-
-  const reranked = Object.values(fused)
-    .sort((a, b) => b.rrf - a.rrf)
+  // 3. RRF Fusion (rank-based, see reciprocalRankFusion above)
+  const reranked = reciprocalRankFusion([vectorResults, keywordResults], 60)
     .slice(0, k)
-    .map(r => r.item)
     .filter(doc => doc.hash !== 'init'); // Remove dummy
+
+  if (reranked.length === 0) {
+    return { context: '', empty: true, meta: [] };
+  }
+
+  const meta = reranked.map(r => ({
+    title: r.title,
+    url: r.url,
+    score: typeof r.rrfScore === 'number' ? r.rrfScore : 0
+  }));
 
   const context = reranked.map((r) => {
     const safeText = sanitizeRagText(r.text);
     return `📄 [${r.title}](${r.url})\n${safeText}\n`;
   }).join('\n───\n');
 
+  return { context, empty: false, meta };
+}
+
+async function queryRAG(query, k = 15) {
+  const { context } = await retrieve(query, k);
   return context;
 }
 
-module.exports = { ingestData, queryRAG, initDB, sanitizeRagText };
+module.exports = { ingestData, queryRAG, retrieve, initDB, sanitizeRagText, semanticChunk, reciprocalRankFusion, tokenLength };
 

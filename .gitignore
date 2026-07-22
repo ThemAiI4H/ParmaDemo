@@ -2,6 +2,9 @@ node_modules/
 package-lock.json
 data/raw/
 data/crawl-cache.json
+data/uploads/
+data/knowledge-engine/
+data/lancedb/
 ParmaDemo.zip
 demo.txt
 .env
